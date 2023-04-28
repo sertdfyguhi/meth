@@ -26,6 +26,8 @@ class Lexer:
                 tokens.append(Token(TT_LBRACKET))
             elif self.curr == ")":
                 tokens.append(Token(TT_RBRACKET))
+            elif self.curr == "=":
+                tokens.append(Token(TT_EQUAL))
             elif self.curr == "+":
                 tokens.append(Token(TT_PLUS))
             elif self.curr == "-":
@@ -34,6 +36,8 @@ class Lexer:
                 tokens.append(Token(TT_MUL))
             elif self.curr == "/":
                 tokens.append(Token(TT_DIV))
+            elif self.curr == "^":
+                tokens.append(Token(TT_POW))
             else:
                 raise SyntaxError(f"Invalid character '{self.curr}'")
 
