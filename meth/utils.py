@@ -1,18 +1,18 @@
 from .nodes import BaseNode
 
 
-def get_last_right_node(tree: BaseNode, stop_at: list = []):
+def get_final_node(tree: BaseNode, stop_at: list = []):
     node = tree
-    depth = 0
 
     while (
         getattr((n := getattr(node, "right", None)), "right", None)
         and n.value not in stop_at
+        and not n.is_paren
     ):
         node = node.right
         depth += 1
 
-    return node, depth
+    return node
 
 
 def get_from_depth(tree: BaseNode, depth: int):

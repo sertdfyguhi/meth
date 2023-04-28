@@ -47,17 +47,17 @@ class Parser:
 
             self.node = BinaryOpNode(op_type, self.node, right)
         elif self.curr in [TT_MUL, TT_DIV]:
-            node, _ = utils.get_last_right_node(self.node, [TT_POW])
+            node = utils.get_final_node(self.node, [TT_POW])
             op_type = self.curr.type
             self.next(True)
             right = self.binary_op()
 
-            if type(node) != Token:
+            if type(node) != Token and not node.right.is_paren:
                 node.right = BinaryOpNode(op_type, node.right, right)
             else:
                 self.node = BinaryOpNode(op_type, node, right)
         elif self.curr == TT_POW:
-            node, _ = utils.get_last_right_node(self.node)
+            node, _ = utils.get_final_node(self.node)
             self.next(True)
             right = self.binary_op()
 
@@ -68,12 +68,22 @@ class Parser:
         elif self.curr == TT_LBRACKET:
             self.next(True)
             tokens = []
+            opened = 1
 
-            while self.curr != TT_RBRACKET:
+            while opened:
                 tokens.append(self.curr)
                 self.next(True)
 
-            return Parser(tokens).parse()
+                if self.curr == TT_RBRACKET:
+                    opened -= 1
+                elif self.curr == TT_LBRACKET:
+                    opened += 1
+
+            print(tokens)
+            ast = Parser(tokens).parse()
+            ast.is_paren = True
+
+            return ast
 
         # elif self.curr == TT_IDENTIFIER:
         #     self.node
