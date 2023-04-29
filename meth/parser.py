@@ -23,27 +23,18 @@ class Parser:
         self.node = self.curr
 
         while self.curr:
-            if self.curr in [TT_INT, TT_FLOAT]:
-                if self.next() == None:
-                    return self.node
-
-                self.term()
-            elif self.curr in [
-                TT_PLUS,
-                TT_MINUS,
-                TT_MUL,
-                TT_DIV,
-                TT_POW,
-                TT_LBRACKET,
-            ]:
-                self.term()
-            else:
+            if self.curr == TT_RBRACKET:
                 raise SyntaxError(f"Unexpected token '{self.curr}'")
+            elif self.curr in [TT_INT, TT_FLOAT]:
+                self.next()
+
+            self.term()
 
             self.next()
 
         return self.node
 
+    # TODO: use a better name
     def grouped_term(self):
         self.next(True)
 
@@ -69,6 +60,8 @@ class Parser:
             return ast
         elif self.curr in [TT_INT, TT_FLOAT]:
             return self.curr
+        elif self.curr in [TT_PLUS, TT_MINUS]:
+            return UnaryOpNode(self.curr.type, self.grouped_term())
         else:
             raise SyntaxError(f"Invalid character {self.curr.type}")
 
@@ -84,7 +77,11 @@ class Parser:
             #         TT_MUL,
             #     )
 
-            self.node = BinaryOpNode(op_type, self.node, right)
+            self.node = (
+                UnaryOpNode(op_type, right)
+                if self.node in [TT_PLUS, TT_MINUS]
+                else BinaryOpNode(op_type, self.node, right)
+            )
         elif self.curr in [TT_MUL, TT_DIV]:
             node = utils.get_final_node(self.node, [TT_POW])
             op_type = self.curr.type
@@ -104,10 +101,16 @@ class Parser:
                 self.node = BinaryOpNode(TT_POW, node, right)
         elif self.curr == TT_LBRACKET:
             node = utils.get_final_node(self.node)
-            is_multiply = (self.tokens[self.i - 1] if self.i > 0 else None) in [
-                TT_INT,
-                TT_FLOAT,
-            ] or getattr(node.right, "is_paren", False)
+            is_multiply = (
+                (self.tokens[self.i - 1] if self.i > 0 else None)
+                in [
+                    TT_INT,
+                    TT_FLOAT,
+                ]
+                or getattr(node.right, "is_paren", False)
+                if type(node) != Token
+                else False
+            )
             right = self.grouped_term()
 
             if is_multiply:
