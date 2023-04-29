@@ -1,3 +1,6 @@
+from .token import *
+
+
 class BaseNode:
     def __init__(self, value, left=None, right=None, is_paren=False) -> None:
         self.value = value
@@ -13,11 +16,11 @@ class BinaryOpNode(BaseNode):
     pass
 
 
+class AssignNode(BaseNode):
+    def __init__(self, left, right, is_paren=False) -> None:
+        super().__init__(TT_EQUAL, left, right, is_paren)
+
+
 class UnaryOpNode(BaseNode):
     def __init__(self, op_token, number, is_paren=False) -> None:
         super().__init__(op_token, number, is_paren=is_paren)
-
-
-class VarAssignNode(BaseNode):
-    def __init__(self, var_name: str, value: BaseNode, is_paren=False) -> None:
-        super().__init__(var_name, value, is_paren=is_paren)

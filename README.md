@@ -9,6 +9,7 @@ Hopefully this would become a python package to parse mathematical expressions.
   - [x] Bracketing
   - [x] Multiplication using brackets
   - [x] Negative Numbers
-  - [ ] Variables
+  - [x] Variables
+  - [ ] Functions
 - [ ] Interpreter
-- [ ] Accurate floating point calculations
+  - [ ] Accurate floating point calculations
