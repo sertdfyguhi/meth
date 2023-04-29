@@ -27,46 +27,30 @@ class Parser:
                 if self.next() == None:
                     return self.node
 
-                self.binary_op()
-            elif self.curr in [TT_PLUS, TT_MINUS, TT_MUL, TT_DIV, TT_POW]:
-                self.binary_op()
+                self.term()
+            elif self.curr in [
+                TT_PLUS,
+                TT_MINUS,
+                TT_MUL,
+                TT_DIV,
+                TT_POW,
+                TT_LBRACKET,
+            ]:
+                self.term()
+            else:
+                raise SyntaxError(f"Unexpected token '{self.curr}'")
 
             self.next()
 
         return self.node
 
-    def binary_op(self):
-        if self.curr in [TT_INT, TT_FLOAT]:
-            return self.curr
-            # raise SyntaxError(f"Unexpected {self.curr.type}")
+    def grouped_term(self):
+        self.next(True)
 
-        if self.curr in [TT_PLUS, TT_MINUS]:
-            op_type = self.curr.type
-            self.next(True)
-            right = self.binary_op()
+        if TT_LBRACKET in [self.curr, self.tokens[self.i - 1]]:
+            if self.curr == TT_LBRACKET:
+                self.next(True)
 
-            self.node = BinaryOpNode(op_type, self.node, right)
-        elif self.curr in [TT_MUL, TT_DIV]:
-            node = utils.get_final_node(self.node, [TT_POW])
-            op_type = self.curr.type
-            self.next(True)
-            right = self.binary_op()
-
-            if type(node) != Token and not node.right.is_paren:
-                node.right = BinaryOpNode(op_type, node.right, right)
-            else:
-                self.node = BinaryOpNode(op_type, node, right)
-        elif self.curr == TT_POW:
-            node, _ = utils.get_final_node(self.node)
-            self.next(True)
-            right = self.binary_op()
-
-            if type(node) != Token:
-                node.right = BinaryOpNode(TT_POW, node.right, right)
-            else:
-                self.node = BinaryOpNode(TT_POW, node, right)
-        elif self.curr == TT_LBRACKET:
-            self.next(True)
             tokens = []
             opened = 1
 
@@ -79,11 +63,63 @@ class Parser:
                 elif self.curr == TT_LBRACKET:
                     opened += 1
 
-            print(tokens)
             ast = Parser(tokens).parse()
             ast.is_paren = True
 
             return ast
+        elif self.curr in [TT_INT, TT_FLOAT]:
+            return self.curr
+        else:
+            raise SyntaxError(f"Invalid character {self.curr.type}")
+
+    def term(self):
+        if self.curr in [TT_INT, TT_FLOAT]:
+            raise SyntaxError(f"Unexpected {self.curr.type}")
+
+        if self.curr in [TT_PLUS, TT_MINUS]:
+            op_type = self.curr.type
+            right = self.grouped_term()
+            # if right == TT_IDENTIFIER:
+            #     right = BinaryOpNode(
+            #         TT_MUL,
+            #     )
+
+            self.node = BinaryOpNode(op_type, self.node, right)
+        elif self.curr in [TT_MUL, TT_DIV]:
+            node = utils.get_final_node(self.node, [TT_POW])
+            op_type = self.curr.type
+            right = self.grouped_term()
+
+            if type(node) != Token and not getattr(node.right, "is_paren", True):
+                node.right = BinaryOpNode(op_type, node.right, right)
+            else:
+                self.node = BinaryOpNode(op_type, node, right)
+        elif self.curr == TT_POW:
+            node = utils.get_final_node(self.node)
+            right = self.grouped_term()
+
+            if type(node) != Token:
+                node.right = BinaryOpNode(TT_POW, node.right, right)
+            else:
+                self.node = BinaryOpNode(TT_POW, node, right)
+        elif self.curr == TT_LBRACKET:
+            node = utils.get_final_node(self.node)
+            is_multiply = (self.tokens[self.i - 1] if self.i > 0 else None) in [
+                TT_INT,
+                TT_FLOAT,
+            ] or getattr(node.right, "is_paren", False)
+            right = self.grouped_term()
+
+            if is_multiply:
+                if type(node) != Token:
+                    node.right = BinaryOpNode(TT_MUL, node.right, right, True)
+                else:
+                    self.node = BinaryOpNode(TT_MUL, node, right, True)
+            else:
+                if type(node) != Token:
+                    node.right = right
+                else:
+                    self.node = right
 
         # elif self.curr == TT_IDENTIFIER:
         #     self.node

@@ -21,8 +21,3 @@ class UnaryOpNode(BaseNode):
 class VarAssignNode(BaseNode):
     def __init__(self, var_name: str, value: BaseNode, is_paren=False) -> None:
         super().__init__(var_name, value, is_paren=is_paren)
-
-
-class VarAccessNode(BaseNode):
-    def __init__(self, var_name: str) -> None:
-        super().__init__(var_name)

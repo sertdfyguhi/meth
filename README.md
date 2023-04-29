@@ -7,7 +7,8 @@ Hopefully this would become a python package to parse mathematical expressions.
 - [x] Lexer
 - [ ] Parser
   - [x] Bracketing
-  - [ ] Multiplication using brackets
+  - [x] Multiplication using brackets
+  - [ ] Negative Numbers
   - [ ] Variables
 - [ ] Interpreter
 - [ ] Accurate floating point calculations

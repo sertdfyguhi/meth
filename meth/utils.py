@@ -10,7 +10,6 @@ def get_final_node(tree: BaseNode, stop_at: list = []):
         and not n.is_paren
     ):
         node = node.right
-        depth += 1
 
     return node
 
