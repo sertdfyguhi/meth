@@ -4,7 +4,8 @@ from .parser import Parser
 from .lexer import Lexer
 
 
-def parse(expr: str | list[str]):
+def parse(expr: str):
+    """Parse an expression."""
     tokens = Lexer(expr).tokenize()
     ast = Parser(tokens).parse()
 
@@ -12,4 +13,5 @@ def parse(expr: str | list[str]):
 
 
 def evaluate(ast: BaseNode):
+    """Evaluate a parsed expression."""
     pass

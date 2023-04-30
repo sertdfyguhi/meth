@@ -1,18 +1,33 @@
 from .token import *
 import string
 
+TOKENS = {
+    "(": TT_LBRACKET,
+    ")": TT_RBRACKET,
+    "=": TT_EQUAL,
+    ",": TT_COMMA,
+    "+": TT_PLUS,
+    "-": TT_MINUS,
+    "*": TT_MUL,
+    "/": TT_DIV,
+    "^": TT_POW,
+}
+
 
 class Lexer:
     def __init__(self, expr: str) -> None:
+        """Lexer."""
         self.expr = expr
         self.i = -1
         self.next()
 
     def next(self):
+        """Advances to the next character."""
         self.i += 1
         self.curr = self.expr[self.i] if self.i < len(self.expr) else None
 
     def tokenize(self):
+        """Tokenizes the inputted expression."""
         tokens = []
 
         while self.curr:
@@ -22,22 +37,8 @@ class Lexer:
                 tokens.append(self.number())
             elif self.curr in string.ascii_letters:
                 tokens.append(Token(TT_IDENTIFIER, self.curr))
-            elif self.curr == "(":
-                tokens.append(Token(TT_LBRACKET))
-            elif self.curr == ")":
-                tokens.append(Token(TT_RBRACKET))
-            elif self.curr == "=":
-                tokens.append(Token(TT_EQUAL))
-            elif self.curr == "+":
-                tokens.append(Token(TT_PLUS))
-            elif self.curr == "-":
-                tokens.append(Token(TT_MINUS))
-            elif self.curr == "*":
-                tokens.append(Token(TT_MUL))
-            elif self.curr == "/":
-                tokens.append(Token(TT_DIV))
-            elif self.curr == "^":
-                tokens.append(Token(TT_POW))
+            elif self.curr in TOKENS:
+                tokens.append(Token(TOKENS[self.curr]))
             else:
                 raise SyntaxError(f"Invalid character '{self.curr}'")
 
@@ -46,6 +47,7 @@ class Lexer:
         return tokens
 
     def number(self) -> Token:
+        """Tokenizes a number."""
         number = ""
         is_float = False
 
