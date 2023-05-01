@@ -7,11 +7,9 @@ from .lexer import Lexer
 def parse(expr: str):
     """Parse an expression."""
     tokens = Lexer(expr).tokenize()
-    ast = Parser(tokens).parse()
-
-    return ast
+    return Parser(tokens).parse()
 
 
 def evaluate(ast: BaseNode):
     """Evaluate a parsed expression."""
-    pass
+    return Interpreter(ast).interpret()

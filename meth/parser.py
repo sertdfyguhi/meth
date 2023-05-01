@@ -50,7 +50,7 @@ class Parser:
                     if self.node in [TT_PLUS, TT_MINUS]
                     else BinaryOpNode(op_type, self.node, right)
                 )
-            elif self.curr in [TT_MUL, TT_DIV]:
+            elif self.curr in [TT_MUL, TT_DIV, TT_MOD]:
                 self.binary_op(self.curr.type, stop_at=[TT_POW])
             elif self.curr == TT_POW:
                 self.binary_op(TT_POW)
@@ -100,7 +100,6 @@ class Parser:
                     in [
                         TT_INT,
                         TT_FLOAT,
-                        TT_IDENTIFIER,
                         TT_RBRACKET,
                     ]
                 ):
@@ -148,7 +147,7 @@ class Parser:
         if not right:
             right = self.factor()
 
-        if type(node) != Token and not getattr(node.right, "is_paren", True):
+        if type(node) != Token and not getattr(node.right, "is_paren", False):
             node.right = BinaryOpNode(op_type, node.right, right)
         else:
             self.node = BinaryOpNode(op_type, node, right)

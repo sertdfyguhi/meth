@@ -1,5 +1,8 @@
 import meth
 
-ast = meth.parse("f(x) + 2= 2(2) / 2")
-# print(meth.evaluate(ast))
-print(ast)
+EXPRESSIONS = ["x = 2", "x + 3"]
+
+interpreter = meth.Interpreter()
+
+for expr in EXPRESSIONS:
+    print(interpreter.interpret(meth.parse(expr)))

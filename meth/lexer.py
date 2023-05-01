@@ -10,6 +10,7 @@ TOKENS = {
     "-": TT_MINUS,
     "*": TT_MUL,
     "/": TT_DIV,
+    "%": TT_MOD,
     "^": TT_POW,
 }
 
