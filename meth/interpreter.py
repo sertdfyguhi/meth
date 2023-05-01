@@ -1,3 +1,5 @@
+from .builtins import BUILTINS
+from inspect import signature
 from .nodes import *
 from .token import *
 
@@ -31,9 +33,9 @@ class Interpreter:
 
     def visit_Token(self, token: Token):
         if token.type == TT_IDENTIFIER:
-            if token.value not in self.vars:
+            if token.value not in self.vars and token.value not in BUILTINS:
                 raise NameError(f"{token.value} is not defined.")
-            return self.vars[token.value]
+            return (self.vars if token.value in self.vars else BUILTINS)[token.value]
 
         return token.value
 
@@ -71,6 +73,15 @@ class Interpreter:
         if type(value := self.visit(node.value)) == Function:
             return value(*[self.visit(arg) for arg in node.left])
         else:
+            if callable(value):
+                if (plen := len(signature(value).parameters)) != len(node.left):
+                    raise SyntaxError(
+                        f"{value}() takes in {plen} arguments but {len(node.left)} were given."
+                    )
+
+                return value(*[self.visit(arg) for arg in node.left])
+
             if len(node.left) > 1:
                 raise SyntaxError("Unexpected argument.")
+
             return value * self.visit(node.left[0])

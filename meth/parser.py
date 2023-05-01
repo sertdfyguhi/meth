@@ -30,6 +30,9 @@ class Parser:
 
     def parse(self, disallow_assign=False, args=False, is_paren=True):
         """Parse the inputted tokens."""
+        if self.curr == None:
+            return None
+
         self.node = self.curr
         if args:
             self.res = []

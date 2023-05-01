@@ -10,6 +10,9 @@ def parse(expr: str):
     return Parser(tokens).parse()
 
 
-def evaluate(ast: BaseNode):
+def evaluate(ast: BaseNode | str):
     """Evaluate a parsed expression."""
-    return Interpreter(ast).interpret()
+    if type(ast) == str:
+        ast = parse(ast)
+
+    return Interpreter().interpret(ast)

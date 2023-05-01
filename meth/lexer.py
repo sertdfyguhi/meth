@@ -1,3 +1,4 @@
+from .builtins import BUILTINS
 from .token import *
 import string
 
@@ -37,7 +38,7 @@ class Lexer:
             elif self.curr in string.digits:
                 tokens.append(self.number())
             elif self.curr in string.ascii_letters:
-                tokens.append(Token(TT_IDENTIFIER, self.curr))
+                tokens.append(*self.identifier())
             elif self.curr in TOKENS:
                 tokens.append(Token(TOKENS[self.curr]))
             else:
@@ -68,4 +69,21 @@ class Lexer:
 
         return Token(
             TT_FLOAT if is_float else TT_INT, (float if is_float else int)(number)
+        )
+
+    def identifier(self) -> list[Token]:
+        """Tokenizes an identifier."""
+        identifier = ""
+
+        while self.curr and self.curr in string.ascii_letters:
+            identifier += self.curr
+            self.next()
+
+        self.i -= 1
+        self.curr = self.expr[self.i]
+
+        return (
+            [Token(TT_IDENTIFIER, identifier)]
+            if identifier in BUILTINS
+            else [Token(TT_IDENTIFIER, id) for id in identifier]
         )

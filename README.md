@@ -11,9 +11,13 @@ Hopefully this would become a python package to parse mathematical expressions.
   - [x] Negative Numbers
   - [x] Variables
   - [x] Functions
-- [ ] Interpreter
+- [x] Interpreter
   - [x] Binary Operations
   - [x] Unary Operations
   - [x] Variables
   - [x] Functions
-  - [ ] Accurate floating point calculations
+- [x] Add mathematical functions
+- [ ] Simplify an expression
+- [ ] Expand an expression
+- [ ] Documentation
+- [ ] Publish to PyPI

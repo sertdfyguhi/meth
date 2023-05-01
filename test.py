@@ -1,6 +1,6 @@
 import meth
 
-EXPRESSIONS = ["f(x) = 2x + x", "f(,)"]
+EXPRESSIONS = ["sqrt(1, 2) + 2"]
 
 interpreter = meth.Interpreter()
 
