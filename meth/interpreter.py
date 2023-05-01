@@ -2,6 +2,23 @@ from .nodes import *
 from .token import *
 
 
+class Function:
+    def __init__(self, func_node: FunctionNode, func: BaseNode) -> None:
+        self.name = func_node.value.value
+        self.args = func_node.left
+        self.func = func
+
+    def __call__(self, *args) -> None:
+        if len(args) != len(self.args):
+            raise TypeError(
+                f"{self.name}() takes in {len(self.args)} arguments but {len(args)} were given."
+            )
+
+        return Interpreter(
+            {self.args[i].value: args[i] for i in range(len(self.args))}
+        ).interpret(self.func)
+
+
 class Interpreter:
     def __init__(self, vars: dict = {}) -> None:
         self.vars = vars
@@ -34,20 +51,25 @@ class Interpreter:
         elif node.value == TT_POW:
             return self.visit(node.left) ** self.visit(node.right)
         else:
-            raise SyntaxError("how the fuck would this even happen")
+            raise SyntaxError("how would this even happen")
 
     def visit_UnaryOpNode(self, node: BaseNode):
-        pass
+        if node.value == TT_MINUS:
+            return -self.visit(node.left)
+
+        return self.visit(node.left)
 
     def visit_AssignNode(self, node: BaseNode) -> None:
-        if node.left != TT_IDENTIFIER:
+        if node.left == TT_IDENTIFIER:
+            self.vars[node.left.value] = self.visit(node.right)
+        elif type(node.left) == FunctionNode:
+            self.vars[node.left.value.value] = Function(node.left, node.right)
+        else:
             return self.visit(node.left)
 
-        self.vars[node.left.value] = self.visit(node.right)
-
     def visit_FunctionNode(self, node: BaseNode) -> None:
-        if callable(value := self.visit(node.value)):
-            pass
+        if type(value := self.visit(node.value)) == Function:
+            return value(*[self.visit(arg) for arg in node.left])
         else:
             if len(node.left) > 1:
                 raise SyntaxError("Unexpected argument.")

@@ -13,7 +13,7 @@ Hopefully this would become a python package to parse mathematical expressions.
   - [x] Functions
 - [ ] Interpreter
   - [x] Binary Operations
-  - [ ] Unary Operations
+  - [x] Unary Operations
   - [x] Variables
-  - [ ] Functions
+  - [x] Functions
   - [ ] Accurate floating point calculations

@@ -1,6 +1,6 @@
 import meth
 
-EXPRESSIONS = ["x = 2", "x + 3"]
+EXPRESSIONS = ["f(x) = 2x + x", "f(,)"]
 
 interpreter = meth.Interpreter()
 

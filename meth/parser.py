@@ -14,7 +14,11 @@ class Parser:
     def next(self, check_EOF: bool = False, change_curr=True):
         """Advances to the next token."""
         if not change_curr:
-            return self.tokens[self.i + 1] if self.i + 1 < len(self.tokens) else None
+            n = self.tokens[self.i + 1] if self.i + 1 < len(self.tokens) else None
+            if check_EOF and n == None:
+                raise SyntaxError("Unexpected end of expression.")
+
+            return n
 
         self.i += 1
         self.curr = self.tokens[self.i] if self.i < len(self.tokens) else None
@@ -90,7 +94,7 @@ class Parser:
             elif args and self.curr == TT_COMMA:
                 self.node.is_paren = is_paren
                 self.res.append(self.node)
-                self.node = self.next(change_curr=False)
+                self.node = self.next(True, False)
             else:
                 if (
                     (self.tokens[self.i - 1] if self.i > 0 else None)
