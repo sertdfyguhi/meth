@@ -65,6 +65,7 @@ class Parser:
                 node = utils.get_final_node(self.node)
 
                 last_tok = self.tokens[self.i - 1] if self.i > 0 else None
+                # check if its like 2(x + 1)
                 is_multiply = last_tok in [
                     TT_INT,
                     TT_FLOAT,
@@ -88,7 +89,7 @@ class Parser:
                     TT_FLOAT,
                     TT_IDENTIFIER,
                 ]:
-                    self.binary_op(TT_MUL, self.curr)
+                    self.binary_op(TT_MUL, self.curr, is_paren=True)
             elif not disallow_assign and self.curr == TT_EQUAL:
                 self.node = AssignNode(
                     self.node, Parser(self.tokens[self.i + 1 :]).parse(True)
@@ -131,6 +132,7 @@ class Parser:
             tokens = []
             opened = 1
 
+            # get all tokens in bracket
             while opened:
                 tokens.append(self.curr)
                 self.next(True)
@@ -144,17 +146,19 @@ class Parser:
         elif self.curr in [TT_INT, TT_FLOAT, TT_IDENTIFIER]:
             return self.curr
         elif self.curr in [TT_PLUS, TT_MINUS]:
+            # cases like -1, +1
             return UnaryOpNode(self.curr.type, self.factor())
         else:
             raise SyntaxError(f"Invalid character {self.curr.type}")
 
-    def binary_op(self, op_type, right=None, stop_at=[]):
+    def binary_op(self, op_type, right=None, stop_at=[], is_paren=False):
         """Parse a binary operation."""
         node = utils.get_final_node(self.node, stop_at=stop_at)
         if not right:
             right = self.factor()
 
+        # if is_paren is True then i shouldn't change it
         if type(node) != Token and not getattr(node.right, "is_paren", False):
-            node.right = BinaryOpNode(op_type, node.right, right)
+            node.right = BinaryOpNode(op_type, node.right, right, is_paren)
         else:
-            self.node = BinaryOpNode(op_type, node, right)
+            self.node = BinaryOpNode(op_type, node, right, is_paren)

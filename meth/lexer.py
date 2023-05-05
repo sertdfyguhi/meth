@@ -38,7 +38,7 @@ class Lexer:
             elif self.curr in string.digits:
                 tokens.append(self.number())
             elif self.curr in string.ascii_letters:
-                tokens.append(*self.identifier())
+                tokens += self.identifier()
             elif self.curr in TOKENS:
                 tokens.append(Token(TOKENS[self.curr]))
             else:

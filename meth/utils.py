@@ -1,4 +1,5 @@
 from .nodes import BaseNode
+from .token import *
 
 
 def get_final_node(tree: BaseNode, stop_at: list = []):

@@ -1,8 +1,7 @@
 import meth
 
-EXPRESSIONS = ["sqrt(1, 2) + 2"]
+# print(meth.simplify("2x + 2x"))
 
-interpreter = meth.Interpreter()
-
-for expr in EXPRESSIONS:
-    print(interpreter.interpret(meth.parse(expr)))
+evaluator = meth.Evaluator()
+evaluator.evaluate("x = 5")
+print(evaluator.evaluate("x"))  # 5

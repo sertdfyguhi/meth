@@ -11,6 +11,17 @@ class BaseNode:
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self.value}, {self.left}, {self.right})"
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, BaseNode):
+            return False
+
+        return (
+            self.value == other.value
+            and self.left == other.left
+            and self.right == other.right
+            # and self.is_paren == other.is_paren
+        )
+
 
 class BinaryOpNode(BaseNode):
     pass

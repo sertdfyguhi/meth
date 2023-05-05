@@ -1,6 +1,7 @@
 import math
 
 BUILTINS = {
+    "pi": math.pi,
     "sin": math.sin,
     "cos": math.cos,
     "tan": math.tan,

@@ -20,11 +20,11 @@ class Token:
         self.type = token_type
         self.value = value
 
-    def __eq__(self, __value: object) -> bool:
-        if type(__value) == Token:
-            return self.type == __value.type and self.value == __value.value
+    def __eq__(self, other: object) -> bool:
+        if type(other) is Token:
+            return self.type == other.type and self.value == other.value
         else:
-            return self.type == __value
+            return self.type == other
 
     def __repr__(self) -> str:
         return f"{self.type}({self.value})"

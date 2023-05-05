@@ -1,18 +1,35 @@
 from .interpreter import Interpreter
-from .nodes import BaseNode
 from .parser import Parser
 from .lexer import Lexer
+from .token import *
+from .nodes import *
+
+from .functions import simplify
 
 
 def parse(expr: str):
     """Parse an expression."""
-    tokens = Lexer(expr).tokenize()
-    return Parser(tokens).parse()
+    return Parser(Lexer(expr).tokenize()).parse()
 
 
 def evaluate(ast: BaseNode | str):
-    """Evaluate a parsed expression."""
+    """Evaluate an expression."""
     if type(ast) == str:
         ast = parse(ast)
 
     return Interpreter().interpret(ast)
+
+
+class Evaluator:
+    def __init__(self) -> None:
+        """Evaluate expressions with variables."""
+        self.intepreter = Interpreter()
+
+    def evaluate(self, expr: BaseNode | str):
+        """Evaluate an expression."""
+        return self.intepreter.interpret(expr if type(expr) != str else parse(expr))
+
+    @property
+    def vars(self) -> dict:
+        """Variables as a dictionary."""
+        return self.intepreter.vars

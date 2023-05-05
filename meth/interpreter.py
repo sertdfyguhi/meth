@@ -26,12 +26,12 @@ class Interpreter:
         self.vars = vars
 
     def interpret(self, ast: BaseNode) -> int | float:
-        return self.visit(ast)
+        return self._visit(ast)
 
-    def visit(self, node: BaseNode) -> int | float:
-        return getattr(self, "visit_" + type(node).__name__)(node)
+    def _visit(self, node: BaseNode) -> int | float:
+        return getattr(self, "_visit_" + type(node).__name__)(node)
 
-    def visit_Token(self, token: Token):
+    def _visit_Token(self, token: Token):
         if token.type == TT_IDENTIFIER:
             if token.value not in self.vars and token.value not in BUILTINS:
                 raise NameError(f"{token.value} is not defined.")
@@ -39,39 +39,39 @@ class Interpreter:
 
         return token.value
 
-    def visit_BinaryOpNode(self, node: BaseNode):
+    def _visit_BinaryOpNode(self, node: BaseNode):
         if node.value == TT_PLUS:
-            return self.visit(node.left) + self.visit(node.right)
+            return self._visit(node.left) + self._visit(node.right)
         elif node.value == TT_MINUS:
-            return self.visit(node.left) - self.visit(node.right)
+            return self._visit(node.left) - self._visit(node.right)
         elif node.value == TT_MUL:
-            return self.visit(node.left) * self.visit(node.right)
+            return self._visit(node.left) * self._visit(node.right)
         elif node.value == TT_DIV:
-            return self.visit(node.left) / self.visit(node.right)
+            return self._visit(node.left) / self._visit(node.right)
         elif node.value == TT_MOD:
-            return self.visit(node.left) % self.visit(node.right)
+            return self._visit(node.left) % self._visit(node.right)
         elif node.value == TT_POW:
-            return self.visit(node.left) ** self.visit(node.right)
+            return self._visit(node.left) ** self._visit(node.right)
         else:
             raise SyntaxError("how would this even happen")
 
-    def visit_UnaryOpNode(self, node: BaseNode):
+    def _visit_UnaryOpNode(self, node: BaseNode):
         if node.value == TT_MINUS:
-            return -self.visit(node.left)
+            return -self._visit(node.left)
 
-        return self.visit(node.left)
+        return self._visit(node.left)
 
-    def visit_AssignNode(self, node: BaseNode) -> None:
+    def _visit_AssignNode(self, node: BaseNode) -> None:
         if node.left == TT_IDENTIFIER:
-            self.vars[node.left.value] = self.visit(node.right)
+            self.vars[node.left.value] = self._visit(node.right)
         elif type(node.left) == FunctionNode:
             self.vars[node.left.value.value] = Function(node.left, node.right)
         else:
-            return self.visit(node.left)
+            return self._visit(node.left)
 
-    def visit_FunctionNode(self, node: BaseNode) -> None:
-        if type(value := self.visit(node.value)) == Function:
-            return value(*[self.visit(arg) for arg in node.left])
+    def _visit_FunctionNode(self, node: BaseNode) -> None:
+        if type(value := self._visit(node.value)) == Function:
+            return value(*[self._visit(arg) for arg in node.left])
         else:
             if callable(value):
                 if (plen := len(signature(value).parameters)) != len(node.left):
@@ -79,9 +79,9 @@ class Interpreter:
                         f"{value}() takes in {plen} arguments but {len(node.left)} were given."
                     )
 
-                return value(*[self.visit(arg) for arg in node.left])
+                return value(*[self._visit(arg) for arg in node.left])
 
             if len(node.left) > 1:
                 raise SyntaxError("Unexpected argument.")
 
-            return value * self.visit(node.left[0])
+            return value * self._visit(node.left[0])
