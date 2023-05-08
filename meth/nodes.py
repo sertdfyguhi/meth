@@ -28,7 +28,7 @@ class BinaryOpNode(BaseNode):
 
 
 class FunctionNode(BaseNode):
-    def __init__(self, name: str, args=None) -> None:
+    def __init__(self, name, args=None) -> None:
         super().__init__(name, args, is_paren=True)
 
 
