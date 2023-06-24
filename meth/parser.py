@@ -5,7 +5,7 @@ from . import utils
 
 class Parser:
     def __init__(self, tokens: list[Token]) -> None:
-        """Parser."""
+        """Parses a list of tokens."""
         self.tokens = tokens
         self.node = None
         self.i = -1
@@ -28,7 +28,7 @@ class Parser:
 
         return self.curr
 
-    def parse(self, disallow_assign=False, args=False, is_paren=True):
+    def parse(self, disallow_assign=False, args=False, is_paren=False):
         """Parse the inputted tokens."""
         if self.curr == None:
             return None
@@ -119,6 +119,7 @@ class Parser:
             self.res.append(self.node)
         else:
             self.node.is_paren = is_paren
+
         return self.node if not args else self.res
 
     def factor(self, func=False):
@@ -158,7 +159,9 @@ class Parser:
             right = self.factor()
 
         # if is_paren is True then i shouldn't change it
-        if type(node) != Token and not getattr(node.right, "is_paren", False):
+        if type(node) not in [Token, UnaryOpNode] and not getattr(
+            node.right, "is_paren", False
+        ):
             node.right = BinaryOpNode(op_type, node.right, right, is_paren)
         else:
             self.node = BinaryOpNode(op_type, node, right, is_paren)

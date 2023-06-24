@@ -1,6 +1,6 @@
 import meth
 
-print(meth.simplify("2(2x + 2y)"))
+print(meth.stringify(meth.parse("-22 + x")))
 
 # evaluator = meth.Evaluator()
 # evaluator.evaluate("x = 5")

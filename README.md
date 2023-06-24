@@ -7,7 +7,7 @@ Hopefully this would become a python package to parse mathematical expressions.
 ```py
 import meth
 
-meth.evaluate("2 + 2") # 2
+meth.evaluate("2 + 2") # 4
 meth.evaluate("sqrt(9)") # 3
 
 # using variables
@@ -33,6 +33,6 @@ evaluator.evaluate("x") # 5
 - [x] Add mathematical functions
 - [ ] Simplify an expression
 - [ ] Expand an expression
-- [ ] Nodes to Equation String
+- [x] AST to Equation String
 - [ ] Documentation
 - [ ] Publish to PyPI

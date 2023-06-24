@@ -4,7 +4,7 @@ from .lexer import Lexer
 from .token import *
 from .nodes import *
 
-from .functions import simplify
+from .functions import *
 
 
 def parse(expr: str):
