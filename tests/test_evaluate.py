@@ -34,3 +34,6 @@ class EvaluateTest(unittest.TestCase):
     def test_unary_mul_var(self):
         self.eval.evaluate("x = 3")
         self.assertEqual(self.eval.evaluate("-10x"), -30)
+
+    def test_bracket_mul(self):
+        self.assertEqual(self.eval.evaluate("(2 * 2)(2 + 1)"), 12)

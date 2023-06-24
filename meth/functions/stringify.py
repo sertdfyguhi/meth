@@ -21,12 +21,26 @@ def stringify(node: BaseNode | Token) -> str:
     if node_t == Token:
         return str(node.value) if node.value else TT_CONV[node.type]
     elif node_t == BinaryOpNode:
-        equation_str = (
-            f"{stringify(node.left)} {TT_CONV[node.value]} {stringify(node.right)}"
-        )
-
-        return f"({equation_str})" if node.is_paren else equation_str
+        # check for 3x
+        if (
+            node.value == TT_MUL
+            and (is_left := node.left == TT_IDENTIFIER)
+            or node.right == TT_IDENTIFIER
+        ):
+            rval, lval = node.right.value, node.left.value
+            return f"{rval if is_left else lval}{lval if is_left else rval}"
+        else:
+            equation_str = (
+                f"{stringify(node.left)} {TT_CONV[node.value]} {stringify(node.right)}"
+            )
+            return f"({equation_str})" if node.is_paren else equation_str
     elif node_t == UnaryOpNode:
         return f"{TT_CONV[node.value]}{stringify(node.left)}"
+    elif node_t == AssignNode:
+        return f"{stringify(node.left)} = {stringify(node.right)}"
+    elif node_t == FunctionNode:
+        return (
+            f"{stringify(node.value)}({', '.join([stringify(n) for n in node.left])})"
+        )
     else:
         raise ValueError("Could not stringify node.")

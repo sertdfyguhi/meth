@@ -71,13 +71,11 @@ class Parser:
                     TT_FLOAT,
                     TT_IDENTIFIER,
                 ] or (
-                    getattr(node.right, "is_paren", False)
-                    if type(node) != Token
-                    else False
+                    getattr(node, "is_paren", False) if type(node) != Token else False
                 )
                 right = self.factor(is_multiply)
 
-                if type(node) != Token:
+                if type(node) != Token and not node.is_paren:
                     node.right = (
                         FunctionNode(node.right, right) if is_multiply else right
                     )
