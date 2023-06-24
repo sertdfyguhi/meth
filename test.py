@@ -1,6 +1,6 @@
 import meth
 
-print(meth.stringify(meth.parse("(2 * 2)(x + 2) = 2")))
+print(meth.parse("sqrt(1) "))
 
 # evaluator = meth.Evaluator()
 # evaluator.evaluate("x = 5")

@@ -48,6 +48,8 @@ class Parser:
             raise SyntaxError(f"Unexpected character {self.curr}")
 
         while self.curr:
+            last_tok = self.tokens[self.i - 1] if self.i > 0 else None
+
             if self.curr in [TT_PLUS, TT_MINUS]:
                 op_type = self.curr.type
                 right = self.factor()
@@ -64,25 +66,23 @@ class Parser:
             elif self.curr == TT_LBRACKET:
                 node = utils.get_final_node(self.node)
 
-                last_tok = self.tokens[self.i - 1] if self.i > 0 else None
                 # check if its like 2(x + 1)
-                is_multiply = last_tok in [
-                    TT_INT,
-                    TT_FLOAT,
-                    TT_IDENTIFIER,
-                ] or (
-                    getattr(node, "is_paren", False) if type(node) != Token else False
+                is_mul = last_tok in [TT_INT, TT_FLOAT] or getattr(
+                    node, "is_paren", False
                 )
-                right = self.factor(is_multiply)
+                is_func = last_tok == TT_IDENTIFIER
+
+                right = self.factor(is_func)
+                fr = right if is_func else [right]
 
                 if type(node) != Token and not node.is_paren:
                     node.right = (
-                        FunctionNode(node.right, right) if is_multiply else right
+                        FunctionNode(node.right, fr) if is_func or is_mul else right
                     )
                 else:
-                    self.node = FunctionNode(node, right) if is_multiply else right
+                    self.node = FunctionNode(node, fr) if is_func or is_mul else right
             elif self.curr == TT_IDENTIFIER:
-                if (self.tokens[self.i - 1] if self.i > 0 else None) in [
+                if last_tok in [
                     TT_INT,
                     TT_FLOAT,
                     TT_IDENTIFIER,
@@ -98,10 +98,7 @@ class Parser:
                 self.res.append(self.node)
                 self.node = self.next(True, False)
             else:
-                if (
-                    (self.tokens[self.i - 1] if self.i > 0 else None)
-                    in [TT_INT, TT_FLOAT, TT_IDENTIFIER, TT_RBRACKET]
-                ) or (
+                if (last_tok in [TT_INT, TT_FLOAT, TT_IDENTIFIER, TT_RBRACKET]) or (
                     self.next(change_curr=False)
                     in [
                         TT_INT,
