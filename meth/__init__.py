@@ -3,16 +3,15 @@ from .parser import Parser
 from .lexer import Lexer
 
 from .functions import *
-from .nodes import *
-from . import error
+from . import error, nodes
 
 
-def parse(expr: str) -> BaseNode | None:
+def parse(expr: str) -> nodes.BaseNode | None:
     """Parse an expression."""
     return Parser(Lexer(expr).tokenize()).parse()
 
 
-def evaluate(ast: BaseNode | str) -> int | float:
+def evaluate(ast: nodes.BaseNode | str) -> int | float:
     """Evaluate an expression."""
     if parsed := parse(ast) if type(ast) == str else ast:
         return Interpreter().interpret(parsed)
@@ -23,7 +22,7 @@ class Evaluator:
         """Evaluate expressions with variables."""
         self.intepreter = Interpreter()
 
-    def evaluate(self, expr: BaseNode | str) -> int | float:
+    def evaluate(self, expr: nodes.BaseNode | str) -> int | float:
         """Evaluate an expression."""
         if parsed := parse(expr) if type(expr) == str else expr:
             return self.intepreter.interpret(parsed)

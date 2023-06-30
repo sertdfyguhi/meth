@@ -15,7 +15,7 @@ class Parser:
         """Advances to the next token."""
         if not change_curr:
             n = self.tokens[self.i + 1] if self.i + 1 < len(self.tokens) else None
-            if check_EOF and n == None:
+            if check_EOF and n is None:
                 raise error.SyntaxError("Unexpected end of expression.")
 
             return n
@@ -23,14 +23,14 @@ class Parser:
         self.i += 1
         self.curr = self.tokens[self.i] if self.i < len(self.tokens) else None
 
-        if check_EOF and self.curr == None:
+        if check_EOF and self.curr is None:
             raise error.SyntaxError("Unexpected end of expression.")
 
         return self.curr
 
     def parse(self, disallow_assign=False, args=False, is_paren=False):
         """Parse the inputted tokens."""
-        if self.curr == None:
+        if self.curr is None:
             return None
 
         self.node = self.curr
@@ -150,7 +150,7 @@ class Parser:
     def binary_op(self, op_type, right=None, stop_at=[], is_paren=False):
         """Parse a binary operation."""
         node = utils.get_final_node(self.node, stop_at=stop_at)
-        if not right:
+        if right is None:
             right = self.factor()
 
         # if is_paren is True then i shouldn't change it

@@ -1,6 +1,6 @@
 import string
 
-from .builtins import BUILTINS
+from .builtins import *
 from .token import *
 from . import error
 
@@ -60,6 +60,7 @@ class Lexer:
             if self.curr == ".":
                 if is_float:
                     raise error.SyntaxError("Unexpected '.'")
+
                 is_float = True
 
             number += self.curr
@@ -87,6 +88,6 @@ class Lexer:
 
         return (
             [Token(TT_IDENTIFIER, identifier)]
-            if identifier in BUILTINS
-            else [Token(TT_IDENTIFIER, id) for id in identifier]
+            if get_builtin(identifier)
+            else [Token(TT_IDENTIFIER, idf) for idf in identifier]
         )

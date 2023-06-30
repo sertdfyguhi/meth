@@ -9,8 +9,10 @@ class BaseNode:
         self.right = right
         self.is_paren = is_paren
 
+        self.name = type(self).__name__
+
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}({self.value}, {self.left}, {self.right})"
+        return f"{self.name}({self.value}, {self.left}, {self.right})"
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, BaseNode):

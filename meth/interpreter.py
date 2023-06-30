@@ -1,6 +1,6 @@
 from inspect import signature
 
-from .builtins import BUILTINS
+from .builtins import *
 from .nodes import *
 from .token import *
 from . import error
@@ -37,10 +37,11 @@ class Interpreter:
 
     def _visit_Token(self, token: Token):
         if token.type == TT_IDENTIFIER:
-            if token.value not in self.vars and token.value not in BUILTINS:
+            is_var = token.value in self.vars
+            if not is_var and (builtin := get_builtin(token.value)) is None:
                 raise error.VarNotDefinedError(f"{token.value} is not defined.")
 
-            return (self.vars if token.value in self.vars else BUILTINS)[token.value]
+            return self.vars[token.value] if is_var else builtin
 
         return token.value
 
