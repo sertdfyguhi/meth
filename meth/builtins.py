@@ -1,5 +1,11 @@
 import math
 
+
+# inspect signature bypass
+def log(x: float | int, base: int):
+    return math.log(x, base)
+
+
 BUILTINS = {
     "e": math.e,
     "pi": math.pi,
@@ -10,7 +16,7 @@ BUILTINS = {
     "acos": math.acos,
     "atan": math.atan,
     "atan2": math.atan2,
-    "log": math.log,
+    "log": log,
     "log10": math.log10,
     "exp": math.exp,
     "sqrt": math.sqrt,

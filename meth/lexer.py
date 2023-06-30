@@ -75,7 +75,11 @@ class Lexer:
         """Tokenizes an identifier."""
         identifier = ""
 
-        while self.curr and self.curr in string.ascii_letters:
+        while (
+            self.curr
+            and self.curr in string.ascii_letters
+            or self.curr in string.digits
+        ):
             identifier += self.curr
             self.next()
 
