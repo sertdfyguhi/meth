@@ -25,9 +25,11 @@ class Function:
 
 class Interpreter:
     def __init__(self, vars: dict = {}) -> None:
+        """Initialize the interpreter."""
         self.vars = vars
 
     def interpret(self, ast: BaseNode) -> int | float:
+        """Interpret an AST."""
         return self._visit(ast)
 
     def _visit(self, node: BaseNode) -> int | float:

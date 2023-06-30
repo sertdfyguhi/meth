@@ -3,6 +3,7 @@ from .token import *
 
 class BaseNode:
     def __init__(self, value, left=None, right=None, is_paren=False) -> None:
+        """Base class for all nodes."""
         self.value = value
         self.left = left
         self.right = right

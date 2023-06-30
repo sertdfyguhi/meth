@@ -5,7 +5,7 @@ from .nodes import *
 
 class Parser:
     def __init__(self, tokens: list[Token]) -> None:
-        """Parses a list of tokens."""
+        """Initialize the parser."""
         self.tokens = tokens
         self.node = None
         self.i = -1

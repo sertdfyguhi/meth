@@ -21,7 +21,7 @@ TOKENS = {
 
 class Lexer:
     def __init__(self, expr: str) -> None:
-        """Lexer."""
+        """Initialize the lexer / tokenizer."""
         self.expr = expr
         self.i = -1
         self.next()
@@ -32,7 +32,7 @@ class Lexer:
         self.curr = self.expr[self.i] if self.i < len(self.expr) else None
 
     def tokenize(self):
-        """Tokenizes the inputted expression."""
+        """Tokenizes the expression."""
         tokens = []
 
         while self.curr:

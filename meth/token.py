@@ -17,11 +17,12 @@ TT_INT = "INTEGER"
 
 class Token:
     def __init__(self, token_type, value=None) -> None:
+        """Class for tokens."""
         self.type = token_type
         self.value = value
 
     def __eq__(self, other: object) -> bool:
-        if type(other) is Token:
+        if type(other) == Token:
             return self.type == other.type and self.value == other.value
         else:
             return self.type == other
