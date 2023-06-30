@@ -1,6 +1,6 @@
+from . import utils, error
 from .token import *
 from .nodes import *
-from . import utils
 
 
 class Parser:
@@ -16,7 +16,7 @@ class Parser:
         if not change_curr:
             n = self.tokens[self.i + 1] if self.i + 1 < len(self.tokens) else None
             if check_EOF and n == None:
-                raise SyntaxError("Unexpected end of expression.")
+                raise error.SyntaxError("Unexpected end of expression.")
 
             return n
 
@@ -24,7 +24,7 @@ class Parser:
         self.curr = self.tokens[self.i] if self.i < len(self.tokens) else None
 
         if check_EOF and self.curr == None:
-            raise SyntaxError("Unexpected end of expression.")
+            raise error.SyntaxError("Unexpected end of expression.")
 
         return self.curr
 
@@ -35,7 +35,7 @@ class Parser:
 
         self.node = self.curr
         if args:
-            self.res = []
+            res = []
 
         if self.curr not in [
             TT_PLUS,
@@ -45,7 +45,7 @@ class Parser:
             TT_INT,
             TT_FLOAT,
         ]:
-            raise SyntaxError(f"Unexpected character {self.curr}")
+            raise error.SyntaxError(f"Unexpected character {self.curr.type}.")
 
         while self.curr:
             last_tok = self.tokens[self.i - 1] if self.i > 0 else None
@@ -95,7 +95,7 @@ class Parser:
                 self.i = len(self.tokens)
             elif args and self.curr == TT_COMMA:
                 self.node.is_paren = is_paren
-                self.res.append(self.node)
+                res.append(self.node)
                 self.node = self.next(True, False)
             else:
                 if (last_tok in [TT_INT, TT_FLOAT, TT_IDENTIFIER, TT_RBRACKET]) or (
@@ -106,16 +106,16 @@ class Parser:
                         TT_RBRACKET,
                     ]
                 ):
-                    raise SyntaxError(f"Unexpected character {self.curr}")
+                    raise error.SyntaxError(f"Unexpected character {self.curr}")
 
             self.next()
 
         if args:
-            self.res.append(self.node)
+            res.append(self.node)
         else:
             self.node.is_paren = is_paren
 
-        return self.node if not args else self.res
+        return self.node if not args else res
 
     def factor(self, func=False):
         """Parse a factor."""
@@ -145,7 +145,7 @@ class Parser:
             # cases like -1, +1
             return UnaryOpNode(self.curr.type, self.factor())
         else:
-            raise SyntaxError(f"Invalid character {self.curr.type}")
+            raise error.SyntaxError(f"Invalid character {self.curr.type}")
 
     def binary_op(self, op_type, right=None, stop_at=[], is_paren=False):
         """Parse a binary operation."""

@@ -1,23 +1,21 @@
 from .interpreter import Interpreter
 from .parser import Parser
 from .lexer import Lexer
-from .token import *
-from .nodes import *
 
 from .functions import *
+from .nodes import *
+from . import error
 
 
-def parse(expr: str):
+def parse(expr: str) -> BaseNode | None:
     """Parse an expression."""
     return Parser(Lexer(expr).tokenize()).parse()
 
 
-def evaluate(ast: BaseNode | str):
+def evaluate(ast: BaseNode | str) -> int | float:
     """Evaluate an expression."""
-    if type(ast) == str:
-        ast = parse(ast)
-
-    return Interpreter().interpret(ast)
+    if parsed := parse(ast) if type(ast) == str else ast:
+        return Interpreter().interpret(parsed)
 
 
 class Evaluator:
@@ -25,9 +23,10 @@ class Evaluator:
         """Evaluate expressions with variables."""
         self.intepreter = Interpreter()
 
-    def evaluate(self, expr: BaseNode | str):
+    def evaluate(self, expr: BaseNode | str) -> int | float:
         """Evaluate an expression."""
-        return self.intepreter.interpret(expr if type(expr) != str else parse(expr))
+        if parsed := parse(expr) if type(expr) == str else expr:
+            return self.intepreter.interpret(parsed)
 
     @property
     def vars(self) -> dict:

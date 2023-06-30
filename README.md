@@ -1,8 +1,10 @@
 # meth: A mathematical expression parser.
 
-Hopefully this would become a python package to parse mathematical expressions.
+A python package to parse and evaluate mathematical expressions.
 
-# Example
+# Examples
+
+> _More examples in the [examples/](examples/) directory._
 
 ```py
 import meth

@@ -1,7 +1,9 @@
-from .builtins import BUILTINS
 from inspect import signature
+
+from .builtins import BUILTINS
 from .nodes import *
 from .token import *
+from . import error
 
 
 class Function:
@@ -12,7 +14,7 @@ class Function:
 
     def __call__(self, *args) -> None:
         if len(args) != len(self.args):
-            raise TypeError(
+            raise error.ArgumentError(
                 f"{self.name}() takes in {len(self.args)} arguments but {len(args)} were given."
             )
 
@@ -34,7 +36,8 @@ class Interpreter:
     def _visit_Token(self, token: Token):
         if token.type == TT_IDENTIFIER:
             if token.value not in self.vars and token.value not in BUILTINS:
-                raise NameError(f"{token.value} is not defined.")
+                raise error.VarNotDefinedError(f"{token.value} is not defined.")
+
             return (self.vars if token.value in self.vars else BUILTINS)[token.value]
 
         return token.value
@@ -53,15 +56,13 @@ class Interpreter:
         elif node.value == TT_POW:
             return self._visit(node.left) ** self._visit(node.right)
         else:
-            raise SyntaxError("how would this even happen")
+            raise error.NotImplError(f"{node.value} is unimplemented.")
 
     def _visit_UnaryOpNode(self, node: BaseNode):
-        if node.value == TT_MINUS:
-            return -self._visit(node.left)
+        value = self._visit(node.left)
+        return value if node.value == TT_PLUS else -value
 
-        return self._visit(node.left)
-
-    def _visit_AssignNode(self, node: BaseNode) -> None:
+    def _visit_AssignNode(self, node: BaseNode):
         if node.left == TT_IDENTIFIER:
             self.vars[node.left.value] = self._visit(node.right)
         elif type(node.left) == FunctionNode:
@@ -69,19 +70,18 @@ class Interpreter:
         else:
             return self._visit(node.left)
 
-    def _visit_FunctionNode(self, node: BaseNode) -> None:
+    def _visit_FunctionNode(self, node: BaseNode):
         if type(value := self._visit(node.value)) == Function:
             return value(*[self._visit(arg) for arg in node.left])
+        elif callable(value):
+            if (plen := len(signature(value).parameters)) != len(node.left):
+                raise error.SyntaxError(
+                    f"{value}() takes in {plen} arguments but {len(node.left)} were given."
+                )
+
+            return value(*[self._visit(arg) for arg in node.left])
         else:
-            if callable(value):
-                if (plen := len(signature(value).parameters)) != len(node.left):
-                    raise SyntaxError(
-                        f"{value}() takes in {plen} arguments but {len(node.left)} were given."
-                    )
-
-                return value(*[self._visit(arg) for arg in node.left])
-
             if len(node.left) > 1:
-                raise SyntaxError("Unexpected argument.")
+                raise error.SyntaxError("Unexpected argument.")
 
             return value * self._visit(node.left[0])

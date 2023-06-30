@@ -1,6 +1,9 @@
+import string
+
 from .builtins import BUILTINS
 from .token import *
-import string
+from . import error
+
 
 TOKENS = {
     "(": TT_LBRACKET,
@@ -42,7 +45,7 @@ class Lexer:
             elif self.curr in TOKENS:
                 tokens.append(Token(TOKENS[self.curr]))
             else:
-                raise SyntaxError(f"Invalid character '{self.curr}'")
+                raise error.SyntaxError(f"Invalid character '{self.curr}'")
 
             self.next()
 
@@ -56,12 +59,10 @@ class Lexer:
         while self.curr and self.curr in string.digits + ".":
             if self.curr == ".":
                 if is_float:
-                    raise SyntaxError("Unexpected '.'")
-                else:
-                    is_float = True
+                    raise error.SyntaxError("Unexpected '.'")
+                is_float = True
 
             number += self.curr
-
             self.next()
 
         self.i -= 1
@@ -75,10 +76,8 @@ class Lexer:
         """Tokenizes an identifier."""
         identifier = ""
 
-        while (
-            self.curr
-            and self.curr in string.ascii_letters
-            or self.curr in string.digits
+        while self.curr and (
+            self.curr in string.ascii_letters or self.curr in string.digits
         ):
             identifier += self.curr
             self.next()
