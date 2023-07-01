@@ -1,9 +1,8 @@
 # setup to allow for usage of modules in the parent directory, ignore
-import sys
-import os
+# import sys
+# import os
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
-
+# sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 # start of actual code
 import meth
 
