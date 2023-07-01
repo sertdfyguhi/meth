@@ -2,9 +2,24 @@
 
 A python package to parse and evaluate mathematical expressions.
 
+# Installation
+
+```sh
+pip install meth
+```
+
+or install it from source:
+
+```sh
+git clone https://github.com/sertdfyguhi/meth/
+cd meth
+python3 -m build
+pip install dist/*.whl
+```
+
 # Examples
 
-> _More examples in the [examples/](examples/) directory._
+> _More examples in the [examples/](https://github.com/sertdfyguhi/meth/tree/master/examples) directory._
 
 ```py
 import meth

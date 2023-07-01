@@ -5,7 +5,7 @@ from ..nodes import *
 
 
 def simplify(expr: BaseNode | str):
-    "Simplify an expression."
+    "Simplify an expression. WARNING: This is unfinished and may contain bugs."
     if type(expr) == str:
         expr = Parser(Lexer(expr).tokenize()).parse()
     return simplify_node(expr)
