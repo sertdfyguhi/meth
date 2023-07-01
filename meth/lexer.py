@@ -40,10 +40,12 @@ class Lexer:
                 pass
             elif self.curr in string.digits:
                 tokens.append(self.number())
-            elif self.curr in string.ascii_letters:
-                tokens += self.identifier()
             elif self.curr in TOKENS:
                 tokens.append(Token(TOKENS[self.curr]))
+            elif self.curr in string.ascii_letters:
+                tokens += self.identifier()
+            elif self.curr in SPECIAL_CONST_SYM:
+                tokens.append(Token(TT_IDENTIFIER, self.curr))
             else:
                 raise error.SyntaxError(f"Invalid character '{self.curr}'")
 
@@ -88,6 +90,6 @@ class Lexer:
 
         return (
             [Token(TT_IDENTIFIER, identifier)]
-            if get_builtin(identifier)
+            if is_builtin(identifier)
             else [Token(TT_IDENTIFIER, idf) for idf in identifier]
         )

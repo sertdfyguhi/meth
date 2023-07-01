@@ -19,11 +19,18 @@ def meth_max(a: int | float, b: int | float):
 
 
 # fmt: off
+
 CONSTANTS = {
-    "pi|π": math.pi,
-    "tau|τ": math.tau,
-    "phi|ϕ": (1 + math.sqrt(5)) / 2,
+    "pi": math.pi,
+    "tau": math.tau,
+    "phi": (1 + math.sqrt(5)) / 2,
     "e": math.e,
+}
+
+SPECIAL_CONST_SYM = {
+    "π": CONSTANTS["pi"],
+    "τ": CONSTANTS["tau"],
+    "ϕ": CONSTANTS["phi"],
 }
 
 BUILTINS = {
@@ -63,11 +70,15 @@ BUILTINS = {
     "max": meth_max
 }
 
+def is_builtin(name: str):
+    """Checks to see if name is a builtin."""
+    return name in BUILTINS or name in CONSTANTS or name in SPECIAL_CONST_SYM
+
 def get_builtin(name: str):
     """Get builtin from name."""
     if name in BUILTINS:
         return BUILTINS[name]
-
-    for const in CONSTANTS:
-        if name in const.split('|'):
-            return CONSTANTS[const]
+    elif name in CONSTANTS:
+        return CONSTANTS[name]
+    elif name in SPECIAL_CONST_SYM:
+        return SPECIAL_CONST_SYM[name]
