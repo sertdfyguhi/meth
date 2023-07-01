@@ -48,8 +48,9 @@ evaluator.evaluate("x") # 5
   - [x] Variables
   - [x] Functions
 - [x] Add mathematical functions
+- [ ] Accurate float calculations
 - [ ] Simplify an expression
 - [ ] Expand an expression
 - [x] AST to Equation String
 - [ ] Documentation
-- [ ] Publish to PyPI
+- [x] Publish to PyPI
