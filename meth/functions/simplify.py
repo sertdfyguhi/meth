@@ -1,3 +1,4 @@
+from ..utils import create_number_token
 from ..parser import Parser
 from ..lexer import Lexer
 from ..token import *
@@ -7,7 +8,7 @@ from ..nodes import *
 def simplify(expr: BaseNode | str):
     "Simplify an expression. WARNING: This is unfinished and may contain bugs."
     if type(expr) == str:
-        expr = Parser(Lexer(expr).tokenize()).parse()
+        expr = Parser().parse(Lexer().tokenize(expr))
     return simplify_node(expr)
 
 
@@ -17,11 +18,6 @@ def is_number(token: Token):
 
 def is_var_mul(node: BinaryOpNode):
     return node.value == TT_MUL and is_number(node.left) and node.right == TT_IDENTIFIER
-
-
-def create_number_token(number: int | float) -> Token:
-    is_int = type(number) == int
-    return Token(TT_INT if is_int else TT_FLOAT, number)
 
 
 def simplify_node(node: BaseNode | Token):

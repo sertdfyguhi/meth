@@ -1,3 +1,5 @@
+from typing import Any
+
 TT_IDENTIFIER = "IDENTIFIER"
 TT_LBRACKET = "LEFT_BRACKET"
 TT_RBRACKET = "RIGHT_BRACKET"
@@ -29,12 +31,20 @@ OPERATORS = {
 
 
 class Token:
-    def __init__(self, token_type, value=None) -> None:
-        """Class for tokens."""
+    def __init__(self, token_type, value: Any = None) -> None:
+        """
+        Initializes a token.
+
+        Args:
+            token_type: TT_
+                Type of token.
+            value: Any = None
+                Value of the token.
+        """
         self.type = token_type
         self.value = value
 
-    def __eq__(self, other: object) -> bool:
+    def __eq__(self, other) -> bool:
         if type(other) == Token:
             return self.type == other.type and self.value == other.value
         else:

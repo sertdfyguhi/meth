@@ -10,38 +10,46 @@ class Lexer:
         """Initialize the lexer / tokenizer."""
         pass
 
-    def next(self):
+    def _next(self):
         """Advances to the next character."""
         self.i += 1
         self.curr = self.expr[self.i] if self.i < len(self.expr) else None
 
-    def tokenize(self, expr: str):
-        """Tokenizes the expression."""
+    def tokenize(self, expr: str) -> list[Token]:
+        """
+        Tokenizes the expression.
+
+        Args:
+            expr: str
+                Expression to tokenize.
+
+        Returns: list[Token]
+        """
         self.expr = expr
         self.i = -1
-        self.next()
+        self._next()
 
         tokens = []
 
         while self.curr:
             if self.curr == " ":
-                pass
+                self._next()
             elif self.curr in string.digits:
-                tokens.append(self.number())
+                tokens.append(self._number())
+            elif self.curr in string.ascii_letters:
+                tokens += self._identifier()
             elif self.curr in OPERATORS:
                 tokens.append(Token(OPERATORS[self.curr]))
-            elif self.curr in string.ascii_letters:
-                tokens += self.identifier()
+                self._next()
             elif self.curr in SPECIAL_CONST_SYM:
                 tokens.append(Token(TT_IDENTIFIER, self.curr))
+                self._next()
             else:
                 raise error.SyntaxError(f"Invalid character '{self.curr}'")
 
-            self.next()
-
         return tokens
 
-    def number(self) -> Token:
+    def _number(self) -> Token:
         """Tokenizes a number."""
         number = ""
         is_float = False
@@ -54,16 +62,13 @@ class Lexer:
                 is_float = True
 
             number += self.curr
-            self.next()
-
-        self.i -= 1
-        self.curr = self.expr[self.i]
+            self._next()
 
         return Token(
             TT_FLOAT if is_float else TT_INT, (float if is_float else int)(number)
         )
 
-    def identifier(self) -> list[Token]:
+    def _identifier(self) -> list[Token]:
         """Tokenizes an identifier."""
         identifier = ""
 
@@ -71,10 +76,7 @@ class Lexer:
             self.curr in string.ascii_letters or self.curr in string.digits
         ):
             identifier += self.curr
-            self.next()
-
-        self.i -= 1
-        self.curr = self.expr[self.i]
+            self._next()
 
         return (
             [Token(TT_IDENTIFIER, identifier)]

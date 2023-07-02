@@ -8,6 +8,7 @@ from . import error
 
 class Function:
     def __init__(self, func_node: FunctionNode, func: BaseNode) -> None:
+        """Initializes a meth function."""
         self.name = func_node.value.value
         self.args = func_node.left
         self.func = func
@@ -24,12 +25,26 @@ class Function:
 
 
 class Interpreter:
-    def __init__(self, vars: dict = {}) -> None:
-        """Initializes the interpreter."""
+    def __init__(self, vars: dict[str, int | float] = {}) -> None:
+        """
+        Initializes the interpreter.
+
+        Args:
+            vars: dict[str, int | float] = {}
+                Dictionary of variables.
+        """
         self.vars = vars
 
     def interpret(self, ast: BaseNode) -> int | float | None:
-        """Interpret an AST."""
+        """
+        Interpret an AST.
+
+        Args:
+            ast: Node
+                Tree to interpret.
+
+        Returns: int | float | None
+        """
         return self._visit(ast)
 
     def _visit(self, node: BaseNode):

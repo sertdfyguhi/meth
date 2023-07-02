@@ -1,5 +1,4 @@
 import meth
 
-evaluator = meth.Evaluator()
-evaluator.evaluate("x = 10")
-print(evaluator.get_var("x ="))
+ast = meth.parse("10 + (10 * 10) ^ 2")
+print(meth.utils.get_leaf_node_right(ast))

@@ -16,6 +16,15 @@ TT_CONV = {
 
 
 def stringify(node: BaseNode | Token) -> str:
+    """
+    Stringifies a tree into an equation string.
+
+    Args:
+        node: Node | Token
+            The tree to turn into an equation string.
+
+    Returns: str
+    """
     node_t = type(node)
 
     if node_t == Token:

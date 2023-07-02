@@ -32,4 +32,3 @@ keywords = [
 
 [tool.hatch.build.targets.wheel]
 packages = ["meth"]
-exclude = ["examples"]

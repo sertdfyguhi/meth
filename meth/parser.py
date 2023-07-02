@@ -8,7 +8,7 @@ class Parser:
         """Initialize the parser."""
         pass
 
-    def next(self, check_EOF: bool = False, change_curr=True):
+    def _next(self, check_EOF: bool = False, change_curr: bool = True):
         """Advances to the next token."""
         self.i += 1
         token = self.tokens[self.i] if self.i < len(self.tokens) else None
@@ -24,19 +24,39 @@ class Parser:
         return token
 
     def parse(
-        self, tokens: list[Token], disallow_assign=False, args=False, is_paren=False
-    ):
-        """Parse the inputted tokens."""
+        self,
+        tokens: list[Token],
+        disallow_assign: bool = False,
+        in_args: bool = False,
+        is_paren: bool = False,
+    ) -> BaseNode:
+        """
+        Parse the inputted tokens.
+
+        Args:
+            tokens: list[Token]
+                List of tokens to parse.
+
+        Internal Args:
+            disallow_assign: bool = False
+                Raises an error if an assignment is found.
+            in_args: bool = False
+                Parses tokens as arguments.
+            is_paren: bool = False
+                Sets the is_paren value of the node.
+
+        Returns: Node
+        """
         self.tokens = tokens
         self.i = -1
-        self.next()
+        self._next()
 
         if self.curr is None:
             return None
 
         self.node = self.curr
-        if args:
-            res = []
+        if in_args:
+            args = []
 
         if self.curr not in [
             TT_PLUS,
@@ -53,7 +73,7 @@ class Parser:
 
             if self.curr in [TT_PLUS, TT_MINUS]:
                 op_type = self.curr.type
-                right = self.factor()
+                right = self._factor()
 
                 self.node = (
                     UnaryOpNode(op_type, right)
@@ -61,19 +81,19 @@ class Parser:
                     else BinaryOpNode(op_type, self.node, right)
                 )
             elif self.curr in [TT_MUL, TT_DIV, TT_MOD]:
-                self.binary_op(self.curr.type, stop_at=[TT_POW])
+                self._binary_op(self.curr.type, stop_at=[TT_POW])
             elif self.curr == TT_POW:
-                self.binary_op(TT_POW)
+                self._binary_op(TT_POW)
             elif self.curr == TT_LBRACKET:
-                node = utils.get_final_node(self.node)
+                node = utils.get_leaf_node_right(self.node, True)
 
-                # check if its like 2(x + 1)
+                # check for 2(x + 1) or (1 + 2)(2 * 2)
                 is_mul = last_tok in [TT_INT, TT_FLOAT] or getattr(
                     node, "is_paren", False
                 )
                 is_func = last_tok == TT_IDENTIFIER
 
-                right = self.factor(is_func)
+                right = self._factor(is_func)
                 fr = right if is_func else [right]
 
                 if type(node) != Token and not node.is_paren:
@@ -88,19 +108,19 @@ class Parser:
                     TT_FLOAT,
                     TT_IDENTIFIER,
                 ]:
-                    self.binary_op(TT_MUL, self.curr, is_paren=True)
+                    self._binary_op(TT_MUL, self.curr, is_paren=True)
             elif not disallow_assign and self.curr == TT_EQUAL:
                 self.node = AssignNode(
                     self.node, Parser().parse(self.tokens[self.i + 1 :], True)
                 )
                 self.i = len(self.tokens)
-            elif args and self.curr == TT_COMMA:
+            elif in_args and self.curr == TT_COMMA:
                 self.node.is_paren = is_paren
-                res.append(self.node)
-                self.node = self.next(True, False)
+                args.append(self.node)
+                self.node = self._next(check_EOF=True, change_curr=False)
             else:
                 if (last_tok in [TT_INT, TT_FLOAT, TT_IDENTIFIER, TT_RBRACKET]) or (
-                    self.next(change_curr=False)
+                    self._next(change_curr=False)
                     in [
                         TT_INT,
                         TT_FLOAT,
@@ -109,22 +129,22 @@ class Parser:
                 ):
                     raise error.SyntaxError(f"Unexpected character {self.curr}")
 
-            self.next()
+            self._next()
 
-        if args:
-            res.append(self.node)
+        if in_args:
+            args.append(self.node)
         else:
             self.node.is_paren = is_paren
 
-        return self.node if not args else res
+        return args if in_args else self.node
 
-    def factor(self, func=False):
+    def _factor(self, in_args: bool = False):
         """Parse a factor."""
-        self.next(True)
+        self._next(True)
 
         if TT_LBRACKET in [self.curr, self.tokens[self.i - 1]]:
             if self.curr == TT_LBRACKET:
-                self.next(True)
+                self._next(True)
 
             tokens = []
             opened = 1
@@ -132,32 +152,34 @@ class Parser:
             # get all tokens in bracket
             while opened:
                 tokens.append(self.curr)
-                self.next(True)
+                self._next(True)
 
                 if self.curr == TT_RBRACKET:
                     opened -= 1
                 elif self.curr == TT_LBRACKET:
                     opened += 1
 
-            return Parser().parse(tokens, True, func, True)
+            return Parser().parse(tokens, True, in_args, True)
         elif self.curr in [TT_INT, TT_FLOAT, TT_IDENTIFIER]:
             return self.curr
         elif self.curr in [TT_PLUS, TT_MINUS]:
             # cases like -1, +1
-            return UnaryOpNode(self.curr.type, self.factor())
+            return UnaryOpNode(self.curr.type, self._factor())
         else:
             raise error.SyntaxError(f"Invalid character {self.curr.type}")
 
-    def binary_op(self, op_type, right=None, stop_at=[], is_paren=False):
+    def _binary_op(
+        self, op_type, right=None, stop_at: list = [], is_paren: bool = False
+    ):
         """Parse a binary operation."""
-        node = utils.get_final_node(self.node, stop_at=stop_at)
+        node = utils.get_leaf_node_right(self.node, True, stop_at=stop_at)
         if right is None:
-            right = self.factor()
+            right = self._factor()
 
         # if is_paren is True then i shouldn't change it
-        if type(node) in [Token, UnaryOpNode] and getattr(
+        if type(node) not in [Token, UnaryOpNode] and not getattr(
             node.right, "is_paren", False
         ):
-            self.node = BinaryOpNode(op_type, node, right, is_paren)
-        else:
             node.right = BinaryOpNode(op_type, node.right, right, is_paren)
+        else:
+            self.node = BinaryOpNode(op_type, node, right, is_paren)

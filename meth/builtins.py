@@ -1,3 +1,4 @@
+from typing import Any
 import math
 
 
@@ -70,12 +71,28 @@ BUILTINS = {
     "max": meth_max
 }
 
-def is_builtin(name: str):
-    """Checks to see if name is a builtin."""
+def is_builtin(name: str) -> bool:
+    """
+    Checks to see if name is a builtin.
+
+    Args:
+        name: str
+            Name to check.
+
+    Returns: bool
+    """
     return name in BUILTINS or name in CONSTANTS or name in SPECIAL_CONST_SYM
 
-def get_builtin(name: str):
-    """Get builtin from name."""
+def get_builtin(name: str) -> Any:
+    """
+    Get builtin from name.
+    
+    Args:
+        name: str
+            Name of builtin.
+
+    Returns: Any | None if not found
+    """
     if name in BUILTINS:
         return BUILTINS[name]
     elif name in CONSTANTS:
