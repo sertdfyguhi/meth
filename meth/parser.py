@@ -4,32 +4,33 @@ from .nodes import *
 
 
 class Parser:
-    def __init__(self, tokens: list[Token]) -> None:
+    def __init__(self) -> None:
         """Initialize the parser."""
-        self.tokens = tokens
-        self.node = None
-        self.i = -1
-        self.next()
+        pass
 
     def next(self, check_EOF: bool = False, change_curr=True):
         """Advances to the next token."""
-        if not change_curr:
-            n = self.tokens[self.i + 1] if self.i + 1 < len(self.tokens) else None
-            if check_EOF and n is None:
-                raise error.SyntaxError("Unexpected end of expression.")
-
-            return n
-
         self.i += 1
-        self.curr = self.tokens[self.i] if self.i < len(self.tokens) else None
+        token = self.tokens[self.i] if self.i < len(self.tokens) else None
 
-        if check_EOF and self.curr is None:
+        if check_EOF and token is None:
             raise error.SyntaxError("Unexpected end of expression.")
 
-        return self.curr
+        if change_curr:
+            self.curr = token
+        else:
+            self.i -= 1
 
-    def parse(self, disallow_assign=False, args=False, is_paren=False):
+        return token
+
+    def parse(
+        self, tokens: list[Token], disallow_assign=False, args=False, is_paren=False
+    ):
         """Parse the inputted tokens."""
+        self.tokens = tokens
+        self.i = -1
+        self.next()
+
         if self.curr is None:
             return None
 
@@ -90,7 +91,7 @@ class Parser:
                     self.binary_op(TT_MUL, self.curr, is_paren=True)
             elif not disallow_assign and self.curr == TT_EQUAL:
                 self.node = AssignNode(
-                    self.node, Parser(self.tokens[self.i + 1 :]).parse(True)
+                    self.node, Parser().parse(self.tokens[self.i + 1 :], True)
                 )
                 self.i = len(self.tokens)
             elif args and self.curr == TT_COMMA:
@@ -138,7 +139,7 @@ class Parser:
                 elif self.curr == TT_LBRACKET:
                     opened += 1
 
-            return Parser(tokens).parse(True, func, True)
+            return Parser().parse(tokens, True, func, True)
         elif self.curr in [TT_INT, TT_FLOAT, TT_IDENTIFIER]:
             return self.curr
         elif self.curr in [TT_PLUS, TT_MINUS]:
@@ -154,9 +155,9 @@ class Parser:
             right = self.factor()
 
         # if is_paren is True then i shouldn't change it
-        if type(node) not in [Token, UnaryOpNode] and not getattr(
+        if type(node) in [Token, UnaryOpNode] and getattr(
             node.right, "is_paren", False
         ):
-            node.right = BinaryOpNode(op_type, node.right, right, is_paren)
-        else:
             self.node = BinaryOpNode(op_type, node, right, is_paren)
+        else:
+            node.right = BinaryOpNode(op_type, node.right, right, is_paren)

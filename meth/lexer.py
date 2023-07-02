@@ -5,34 +5,22 @@ from .token import *
 from . import error
 
 
-TOKENS = {
-    "(": TT_LBRACKET,
-    ")": TT_RBRACKET,
-    "=": TT_EQUAL,
-    ",": TT_COMMA,
-    "+": TT_PLUS,
-    "-": TT_MINUS,
-    "*": TT_MUL,
-    "/": TT_DIV,
-    "%": TT_MOD,
-    "^": TT_POW,
-}
-
-
 class Lexer:
-    def __init__(self, expr: str) -> None:
+    def __init__(self) -> None:
         """Initialize the lexer / tokenizer."""
-        self.expr = expr
-        self.i = -1
-        self.next()
+        pass
 
     def next(self):
         """Advances to the next character."""
         self.i += 1
         self.curr = self.expr[self.i] if self.i < len(self.expr) else None
 
-    def tokenize(self):
+    def tokenize(self, expr: str):
         """Tokenizes the expression."""
+        self.expr = expr
+        self.i = -1
+        self.next()
+
         tokens = []
 
         while self.curr:
@@ -40,8 +28,8 @@ class Lexer:
                 pass
             elif self.curr in string.digits:
                 tokens.append(self.number())
-            elif self.curr in TOKENS:
-                tokens.append(Token(TOKENS[self.curr]))
+            elif self.curr in OPERATORS:
+                tokens.append(Token(OPERATORS[self.curr]))
             elif self.curr in string.ascii_letters:
                 tokens += self.identifier()
             elif self.curr in SPECIAL_CONST_SYM:

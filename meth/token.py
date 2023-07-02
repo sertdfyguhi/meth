@@ -14,6 +14,19 @@ TT_POW = "POWER"
 TT_FLOAT = "FLOAT"
 TT_INT = "INTEGER"
 
+OPERATORS = {
+    "(": TT_LBRACKET,
+    ")": TT_RBRACKET,
+    "=": TT_EQUAL,
+    ",": TT_COMMA,
+    "+": TT_PLUS,
+    "-": TT_MINUS,
+    "*": TT_MUL,
+    "/": TT_DIV,
+    "%": TT_MOD,
+    "^": TT_POW,
+}
+
 
 class Token:
     def __init__(self, token_type, value=None) -> None:

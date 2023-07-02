@@ -25,14 +25,14 @@ class Function:
 
 class Interpreter:
     def __init__(self, vars: dict = {}) -> None:
-        """Initialize the interpreter."""
+        """Initializes the interpreter."""
         self.vars = vars
 
-    def interpret(self, ast: BaseNode) -> int | float:
+    def interpret(self, ast: BaseNode) -> int | float | None:
         """Interpret an AST."""
         return self._visit(ast)
 
-    def _visit(self, node: BaseNode) -> int | float:
+    def _visit(self, node: BaseNode):
         return getattr(self, "_visit_" + type(node).__name__)(node)
 
     def _visit_Token(self, token: Token):
