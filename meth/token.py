@@ -51,4 +51,4 @@ class Token:
             return self.type == other
 
     def __repr__(self) -> str:
-        return f"{self.type}({self.value})"
+        return f"{self.type}{f'({self.value})' if self.value else ''}"

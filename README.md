@@ -24,10 +24,17 @@ pip install dist/*.whl
 ```py
 import meth
 
+# tokenizing equations
+meth.tokenize("5 + 2") # INT(5), PLUS, INT(2)
+
+# parsing equations
+meth.parse("2 * 10") # BinaryOpNode(INT(2), MUL, INT(10))
+
+# evaluating equations
 meth.evaluate("2 + 2") # 4
 meth.evaluate("sqrt(9)") # 3
 
-# using variables
+# evaluation with variables
 evaluator = meth.Evaluator()
 evaluator.evaluate("x = 5")
 evaluator.evaluate("x") # 5
