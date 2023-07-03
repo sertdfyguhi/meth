@@ -1,4 +1,5 @@
-from meth import *
+from meth.functions.simplify import simplify
+from meth.nodes import *
 import unittest
 
 

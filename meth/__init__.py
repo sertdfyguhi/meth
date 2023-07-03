@@ -74,7 +74,7 @@ class Evaluator:
 
         Args:
             name: str
-                Name of the variable to set.
+                Name of the variable to set. Has to be a single character.
             value: int | float
                 Value to set the variable with.
 

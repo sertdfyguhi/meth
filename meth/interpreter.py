@@ -48,9 +48,15 @@ class Interpreter:
         return self._visit(ast)
 
     def _visit(self, node: BaseNode):
-        return getattr(self, "_visit_" + type(node).__name__)(node)
+        """Visit a node."""
+        visit_func = getattr(self, "_visit_" + type(node).__name__, None)
+        if visit_func is None:
+            raise error.NotImplError(f"Unexpected type {type(node)}.")
+
+        return visit_func(node)
 
     def _visit_Token(self, token: Token):
+        """Visit a token."""
         if token.type == TT_IDENTIFIER:
             is_var = token.value in self.vars
             if not is_var and (builtin := get_builtin(token.value)) is None:
@@ -61,6 +67,7 @@ class Interpreter:
         return token.value
 
     def _visit_BinaryOpNode(self, node: BaseNode):
+        """Visit a binary operation node."""
         if node.value == TT_PLUS:
             return self._visit(node.left) + self._visit(node.right)
         elif node.value == TT_MINUS:
@@ -77,10 +84,12 @@ class Interpreter:
             raise error.NotImplError(f"{node.value} is unimplemented.")
 
     def _visit_UnaryOpNode(self, node: BaseNode):
+        """Visit a unary operation node."""
         value = self._visit(node.left)
         return value if node.value == TT_PLUS else -value
 
     def _visit_AssignNode(self, node: BaseNode):
+        """Visit a assignment node."""
         if node.left == TT_IDENTIFIER:
             self.vars[node.left.value] = self._visit(node.right)
         elif type(node.left) == FunctionNode:
@@ -89,7 +98,10 @@ class Interpreter:
             return self._visit(node.left)
 
     def _visit_FunctionNode(self, node: BaseNode):
-        if type(value := self._visit(node.value)) == Function:
+        """Visit a function node."""
+        value = self._visit(node.value)
+
+        if type(value) == Function:
             return value(*[self._visit(arg) for arg in node.left])
         elif callable(value):
             if (plen := len(signature(value).parameters)) != len(node.left):

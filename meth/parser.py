@@ -149,6 +149,7 @@ class Parser:
             tokens = []
             opened = 1
 
+            # TODO: refactor optimize
             # get all tokens in bracket
             while opened:
                 tokens.append(self.curr)

@@ -37,3 +37,7 @@ class EvaluateTest(unittest.TestCase):
 
     def test_bracket_mul(self):
         self.assertEqual(self.eval.evaluate("(2 * 2)(2 + 1)"), 12)
+
+    def test_func(self):
+        self.eval.evaluate("f(x) = 2x + sqrt(9)")
+        self.assertEqual(self.eval.evaluate("f(5)"), 13)

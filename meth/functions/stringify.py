@@ -1,5 +1,6 @@
 from ..token import *
 from ..nodes import *
+from .. import error
 
 TT_CONV = {
     TT_LBRACKET: "(",
