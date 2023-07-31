@@ -32,14 +32,14 @@ class Lexer:
         tokens = []
 
         while self.curr:
-            if self.curr == " ":
+            if self.curr in " \t\r\n":
                 self._next()
             elif self.curr in string.digits:
                 tokens.append(self._number())
             elif self.curr in string.ascii_letters:
                 tokens += self._identifier()
-            elif self.curr in OPERATORS:
-                tokens.append(Token(OPERATORS[self.curr]))
+            elif self.curr in SYMBOLS:
+                tokens.append(Token(SYMBOLS[self.curr]))
                 self._next()
             elif self.curr in SPECIAL_CONST_SYM:
                 tokens.append(Token(TT_IDENTIFIER, self.curr))

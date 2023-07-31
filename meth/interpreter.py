@@ -49,8 +49,9 @@ class Interpreter:
 
     def _visit(self, node: BaseNode):
         """Visit a node."""
-        visit_func = getattr(self, "_visit_" + type(node).__name__, None)
-        if visit_func is None:
+        try:
+            visit_func = getattr(self, "_visit_" + type(node).__name__)
+        except AttributeError:
             raise error.NotImplError(f"Unexpected type {type(node)}.")
 
         return visit_func(node)
@@ -66,31 +67,38 @@ class Interpreter:
 
         return token.value
 
+    def _math_PLUS(self, node):
+        return self._visit(node.left) + self._visit(node.right)
+
+    def _math_MINUS(self, node):
+        return self._visit(node.left) - self._visit(node.right)
+
+    def _math_MULTIPLY(self, node):
+        return self._visit(node.left) * self._visit(node.right)
+
+    def _math_DIVIDE(self, node):
+        return self._visit(node.left) / self._visit(node.right)
+
+    def _math_POWER(self, node):
+        return self._visit(node.left) ** self._visit(node.right)
+
+    def _math_MODULO(self, node):
+        return self._visit(node.left) % self._visit(node.right)
+
     def _visit_BinaryOpNode(self, node: BaseNode):
         """Visit a binary operation node."""
-        if node.value == TT_PLUS:
-            return self._visit(node.left) + self._visit(node.right)
-        elif node.value == TT_MINUS:
-            return self._visit(node.left) - self._visit(node.right)
-        elif node.value == TT_MUL:
-            return self._visit(node.left) * self._visit(node.right)
-        elif node.value == TT_DIV:
-            return self._visit(node.left) / self._visit(node.right)
-        elif node.value == TT_MOD:
-            return self._visit(node.left) % self._visit(node.right)
-        elif node.value == TT_POW:
-            return self._visit(node.left) ** self._visit(node.right)
-        else:
+        try:
+            return getattr(self, f"_math_{node.value}")(node)
+        except AttributeError:
             raise error.NotImplError(f"{node.value} is unimplemented.")
 
     def _visit_UnaryOpNode(self, node: BaseNode):
         """Visit a unary operation node."""
-        value = self._visit(node.left)
-        return value if node.value == TT_PLUS else -value
+        return -self._visit(node.left)
 
     def _visit_AssignNode(self, node: BaseNode):
         """Visit a assignment node."""
-        if node.left == TT_IDENTIFIER:
+        if type(node.left) == Token and node.left.is_type(TT_IDENTIFIER):
             self.vars[node.left.value] = self._visit(node.right)
         elif type(node.left) == FunctionNode:
             self.vars[node.left.value.value] = Function(node.left, node.right)

@@ -16,7 +16,7 @@ TT_POW = "POWER"
 TT_FLOAT = "FLOAT"
 TT_INT = "INTEGER"
 
-OPERATORS = {
+SYMBOLS = {
     "(": TT_LBRACKET,
     ")": TT_RBRACKET,
     "=": TT_EQUAL,
@@ -31,24 +31,45 @@ OPERATORS = {
 
 
 class Token:
-    def __init__(self, token_type, value: Any = None) -> None:
+    def __init__(self, tok_type, value: Any = None) -> None:
         """
         Initializes a token.
 
         Args:
-            token_type: TT_
+            tok_type: TT_
                 Type of token.
             value: Any = None
                 Value of the token.
         """
-        self.type = token_type
+        self.type = tok_type
         self.value = value
 
+    def is_type(self, tok_type) -> bool:
+        """
+        Checks if token is of type.
+
+        Args:
+            tok_type: TT_
+                Token type to check for.
+
+        Returns: bool
+        """
+        return self.type == tok_type
+
+    def is_types(self, tok_types: list) -> bool:
+        """
+        Checks if token type is in types provided.
+
+        Args:
+            tok_types: list[TT_]
+                Token types to check for.
+
+        Returns: bool
+        """
+        return self.type in tok_types
+
     def __eq__(self, other) -> bool:
-        if type(other) == Token:
-            return self.type == other.type and self.value == other.value
-        else:
-            return self.type == other
+        return self.type == other.type and self.value == other.value
 
     def __repr__(self) -> str:
         return f"{self.type}{f'({self.value})' if self.value else ''}"

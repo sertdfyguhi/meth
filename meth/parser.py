@@ -1,6 +1,10 @@
+from .builtins import is_builtin
 from . import utils, error
 from .token import *
 from .nodes import *
+
+NUMBERS = [TT_INT, TT_FLOAT]
+OPERATORS = [TT_PLUS, TT_MINUS, TT_MUL, TT_DIV, TT_POW, TT_MOD]
 
 
 class Parser:
@@ -26,9 +30,6 @@ class Parser:
     def parse(
         self,
         tokens: list[Token],
-        disallow_assign: bool = False,
-        in_args: bool = False,
-        is_paren: bool = False,
     ) -> BaseNode:
         """
         Parse the inputted tokens.
@@ -37,150 +38,137 @@ class Parser:
             tokens: list[Token]
                 List of tokens to parse.
 
-        Internal Args:
-            disallow_assign: bool = False
-                Raises an error if an assignment is found.
-            in_args: bool = False
-                Parses tokens as arguments.
-            is_paren: bool = False
-                Sets the is_paren value of the node.
-
         Returns: Node
         """
         self.tokens = tokens
         self.i = -1
         self._next()
 
-        if self.curr is None:
-            return None
-
-        self.node = self.curr
-        if in_args:
-            args = []
-
-        if self.curr not in [
-            TT_PLUS,
-            TT_MINUS,
-            TT_LBRACKET,
-            TT_IDENTIFIER,
-            TT_INT,
-            TT_FLOAT,
-        ]:
-            raise error.SyntaxError(f"Unexpected character {self.curr.type}.")
+        res = self._term()
+        intermediate = []
+        assign_left = None
+        in_args = [False]
+        args = []
 
         while self.curr:
-            last_tok = self.tokens[self.i - 1] if self.i > 0 else None
+            if self.curr.is_types(OPERATORS):
+                op = self.curr
 
-            if self.curr in [TT_PLUS, TT_MINUS]:
-                op_type = self.curr.type
-                right = self._factor()
+                self._next(check_EOF=True)
 
-                self.node = (
-                    UnaryOpNode(op_type, right)
-                    if self.node in [TT_PLUS, TT_MINUS]
-                    else BinaryOpNode(op_type, self.node, right)
-                )
-            elif self.curr in [TT_MUL, TT_DIV, TT_MOD]:
-                self._binary_op(self.curr.type, stop_at=[TT_POW])
-            elif self.curr == TT_POW:
-                self._binary_op(TT_POW)
-            elif self.curr == TT_LBRACKET:
-                node = utils.get_leaf_node_right(self.node, True)
+                right = self._term()
 
-                # check for 2(x + 1) or (1 + 2)(2 * 2)
-                is_mul = last_tok in [TT_INT, TT_FLOAT] or getattr(
-                    node, "is_paren", False
-                )
-                is_func = last_tok == TT_IDENTIFIER
-
-                right = self._factor(is_func)
-                fr = right if is_func else [right]
-
-                if type(node) != Token and not node.is_paren:
-                    node.right = (
-                        FunctionNode(node.right, fr) if is_func or is_mul else right
-                    )
+                if op.is_types([TT_PLUS, TT_MINUS]):
+                    res = BinaryOpNode(op, res, right)
+                    continue
+                elif op.is_types([TT_MUL, TT_DIV]):
+                    leaf = utils.get_leaf_node_right(res, True, [TT_POW, TT_MOD])
                 else:
-                    self.node = FunctionNode(node, fr) if is_func or is_mul else right
-            elif self.curr == TT_IDENTIFIER:
-                if last_tok in [
-                    TT_INT,
-                    TT_FLOAT,
-                    TT_IDENTIFIER,
-                ]:
-                    self._binary_op(TT_MUL, self.curr, is_paren=True)
-            elif not disallow_assign and self.curr == TT_EQUAL:
-                self.node = AssignNode(
-                    self.node, Parser().parse(self.tokens[self.i + 1 :], True)
-                )
-                self.i = len(self.tokens)
-            elif in_args and self.curr == TT_COMMA:
-                self.node.is_paren = is_paren
-                args.append(self.node)
-                self.node = self._next(check_EOF=True, change_curr=False)
+                    leaf = utils.get_leaf_node_right(res, True)
+
+                if type(leaf) == Token or leaf.is_paren:
+                    res = BinaryOpNode(op, leaf, right)
+                else:
+                    leaf.right = BinaryOpNode(op, leaf.right, right)
+            elif self.curr.is_type(TT_LBRACKET):
+                try:
+                    if self.tokens[self.i - 1].is_type(TT_IDENTIFIER):
+                        in_args.append(True)
+                except IndexError:
+                    # ignore when previous token does not exist
+                    pass
+
+                intermediate.append(res)
+                self._next()
+                res = self._term()
+            elif self.curr.is_type(TT_RBRACKET):
+                if res is None:
+                    raise error.SyntaxError("Unexpected end of parentheses.")
+                elif len(intermediate) == 0:
+                    raise error.SyntaxError("Unexpected right bracket.")
+
+                last_intermediate = intermediate.pop()
+                res.is_paren = True
+
+                if last_intermediate:
+                    leaf = utils.get_leaf_node_right(last_intermediate)
+
+                    if in_args[-1]:
+                        if res:
+                            args.append(res)
+
+                        if type(leaf) == Token:
+                            leaf = FunctionNode(leaf, args)
+                        else:
+                            leaf.right = FunctionNode(leaf.right, args)
+
+                        in_args.pop()
+                        args = []
+                    elif type(leaf) == Token or leaf.is_paren:
+                        leaf = BinaryOpNode(TT_MUL, leaf, res, is_paren=True)
+                    elif leaf.right is None:
+                        leaf.right = res
+                    elif type(leaf.right) == UnaryOpNode:
+                        leaf.right.left = res
+                    else:
+                        leaf.right = BinaryOpNode(
+                            TT_MUL, leaf.right, res, is_paren=True
+                        )
+
+                    res = leaf
+
+                self._next()
+            elif self.curr.is_type(TT_EQUAL):
+                if assign_left is not None:
+                    raise error.SyntaxError("Unexpected equal sign.")
+
+                assign_left = res
+                self._next(check_EOF=True)
+                res = self._term()
+            elif in_args[-1] and self.curr.is_type(TT_COMMA):
+                if res is None:
+                    raise error.SyntaxError("Unexpected comma.")
+
+                args.append(res)
+                self._next(check_EOF=True)
+                res = self._term()
             else:
-                if (last_tok in [TT_INT, TT_FLOAT, TT_IDENTIFIER, TT_RBRACKET]) or (
-                    self._next(change_curr=False)
-                    in [
-                        TT_INT,
-                        TT_FLOAT,
-                        TT_RBRACKET,
-                    ]
-                ):
-                    raise error.SyntaxError(f"Unexpected character {self.curr}")
+                raise error.SyntaxError(f"Unexpected {self.curr}.")
+
+        if len(intermediate) > 0:
+            raise error.SyntaxError("Unexpected end of expression.")
+
+        return AssignNode(assign_left, res) if assign_left else res
+
+    def _term(self) -> Token | BinaryOpNode:
+        res = None
+        negative = False
+
+        while self.curr:
+            if res is None:
+                if self.curr.is_type(TT_MINUS):
+                    negative = not negative
+                    self._next(check_EOF=True)
+                elif self.curr.is_type(TT_PLUS):
+                    negative = False
+                    self._next(check_EOF=True)
+
+            if self.curr.is_types(NUMBERS):
+                res = self.curr
+            elif self.curr.is_type(TT_IDENTIFIER):
+                if res:
+                    res = BinaryOpNode(TT_MUL, res, self.curr, is_paren=True)
+                else:
+                    res = self.curr
+            else:
+                break
 
             self._next()
 
-        if in_args:
-            args.append(self.node)
-        else:
-            self.node.is_paren = is_paren
+        if res is None and (self.curr is None or not self.curr.is_type(TT_LBRACKET)):
+            if self.curr is None:
+                raise error.SyntaxError("Unexpected end of expression.")
+            else:
+                raise error.SyntaxError(f"Unexpected {self.curr}.")
 
-        return args if in_args else self.node
-
-    def _factor(self, in_args: bool = False):
-        """Parse a factor."""
-        self._next(True)
-
-        if TT_LBRACKET in [self.curr, self.tokens[self.i - 1]]:
-            if self.curr == TT_LBRACKET:
-                self._next(True)
-
-            tokens = []
-            opened = 1
-
-            # TODO: refactor optimize
-            # get all tokens in bracket
-            while opened:
-                tokens.append(self.curr)
-                self._next(True)
-
-                if self.curr == TT_RBRACKET:
-                    opened -= 1
-                elif self.curr == TT_LBRACKET:
-                    opened += 1
-
-            return Parser().parse(tokens, True, in_args, True)
-        elif self.curr in [TT_INT, TT_FLOAT, TT_IDENTIFIER]:
-            return self.curr
-        elif self.curr in [TT_PLUS, TT_MINUS]:
-            # cases like -1, +1
-            return UnaryOpNode(self.curr.type, self._factor())
-        else:
-            raise error.SyntaxError(f"Invalid character {self.curr.type}")
-
-    def _binary_op(
-        self, op_type, right=None, stop_at: list = [], is_paren: bool = False
-    ):
-        """Parse a binary operation."""
-        node = utils.get_leaf_node_right(self.node, True, stop_at=stop_at)
-        if right is None:
-            right = self._factor()
-
-        # if is_paren is True then i shouldn't change it
-        if type(node) not in [Token, UnaryOpNode] and not getattr(
-            node.right, "is_paren", False
-        ):
-            node.right = BinaryOpNode(op_type, node.right, right, is_paren)
-        else:
-            self.node = BinaryOpNode(op_type, node, right, is_paren)
+        return UnaryOpNode(TT_MINUS, res, True) if negative else res

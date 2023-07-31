@@ -20,12 +20,15 @@ def get_leaf_node_left(
     """
     node = tree
 
-    while (
-        getattr((n := getattr(node, "left", None)), "left", None)
-        and n.value not in stop_at
-        and (stop_at_paren or not n.is_paren)
-    ):
-        node = node.left
+    try:
+        while (
+            (n := node.left).left
+            and n.value not in stop_at
+            and (stop_at_paren or not n.is_paren)
+        ):
+            node = node.left
+    except AttributeError:
+        pass
 
     return node
 
@@ -48,12 +51,15 @@ def get_leaf_node_right(
     """
     node = tree
 
-    while (
-        getattr((n := getattr(node, "right", None)), "right", None)
-        and n.value not in stop_at
-        and (stop_at_paren or not n.is_paren)
-    ):
-        node = node.right
+    try:
+        while (
+            (n := node.right).right
+            and n.value not in stop_at
+            and (stop_at_paren or not n.is_paren)
+        ):
+            node = node.right
+    except AttributeError:
+        pass
 
     return node
 
