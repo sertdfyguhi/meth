@@ -17,7 +17,7 @@ class Parser:
         token = self.tokens[self.i] if self.i < len(self.tokens) else None
 
         if check_EOF and token is None:
-            raise error.SyntaxError("Unexpected end of expression.")
+            raise error.SyntaxError("Unexpected end of expastsion.")
 
         if change_curr:
             self.curr = token
@@ -43,7 +43,7 @@ class Parser:
         self.i = -1
         self._next()
 
-        res = self._term()
+        ast = self._term()
         intermediate = []
         assign_left = None
         arg_nests = 0
@@ -58,15 +58,15 @@ class Parser:
                 right = self._term()
 
                 if op.is_types([TT_PLUS, TT_MINUS]):
-                    res = BinaryOpNode(op, res, right)
+                    ast = BinaryOpNode(op, ast, right)
                     continue
                 elif op.is_types([TT_MUL, TT_DIV]):
-                    leaf = utils.get_leaf_node_right(res, True, [TT_POW, TT_MOD])
+                    leaf = utils.get_leaf_node_right(ast, True, [TT_POW, TT_MOD])
                 else:
-                    leaf = utils.get_leaf_node_right(res, True)
+                    leaf = utils.get_leaf_node_right(ast, True)
 
                 if type(leaf) == Token or leaf.is_paren:
-                    res = BinaryOpNode(op, leaf, right)
+                    ast = BinaryOpNode(op, leaf, right)
                 else:
                     leaf.right = BinaryOpNode(op, leaf.right, right)
             elif self.curr.is_type(TT_LBRACKET):
@@ -77,24 +77,24 @@ class Parser:
                     # ignore when previous token does not exist
                     pass
 
-                intermediate.append(res)
+                intermediate.append(ast)
                 self._next()
-                res = self._term()
+                ast = self._term()
             elif self.curr.is_type(TT_RBRACKET):
-                if res is None:
+                if ast is None:
                     raise error.SyntaxError("Unexpected end of parentheses.")
                 elif len(intermediate) == 0:
                     raise error.SyntaxError("Unexpected right bracket.")
 
                 last_intermediate = intermediate.pop()
-                res.is_paren = True
+                ast.is_paren = True
 
                 if last_intermediate:
                     leaf = utils.get_leaf_node_right(last_intermediate)
 
                     if arg_nests > 0:
-                        if res:
-                            args.append(res)
+                        if ast:
+                            args.append(ast)
 
                         if type(leaf) == Token:
                             leaf = FunctionNode(leaf, args)
@@ -104,48 +104,50 @@ class Parser:
                         arg_nests -= 1
                         args = []
                     elif type(leaf) == Token or leaf.is_paren:
-                        leaf = BinaryOpNode(TT_MUL, leaf, res, is_paren=True)
+                        leaf = BinaryOpNode(TT_MUL, leaf, ast, is_paren=True)
                     elif leaf.right is None:
-                        leaf.right = res
+                        leaf.right = ast
                     elif type(leaf.right) == UnaryOpNode:
-                        leaf.right.left = res
+                        leaf.right.left = ast
                     else:
                         leaf.right = BinaryOpNode(
-                            TT_MUL, leaf.right, res, is_paren=True
+                            TT_MUL, leaf.right, ast, is_paren=True
                         )
 
-                    res = leaf
+                    ast = last_intermediate
 
                 self._next()
             elif self.curr.is_type(TT_EQUAL):
                 if assign_left is not None:
                     raise error.SyntaxError("Unexpected equal sign.")
 
-                assign_left = res
+                assign_left = ast
                 self._next(check_EOF=True)
-                res = self._term()
+                ast = self._term()
             elif arg_nests > 0 and self.curr.is_type(TT_COMMA):
-                if res is None:
+                if ast is None:
                     raise error.SyntaxError("Unexpected comma.")
 
-                args.append(res)
+                args.append(ast)
                 self._next(check_EOF=True)
-                res = self._term()
+                ast = self._term()
             else:
                 raise error.SyntaxError(f"Unexpected {self.curr}.")
 
-        if len(intermediate) > 0:
-            raise error.SyntaxError("Unexpected end of expression.")
+            # print(ast)
 
-        return AssignNode(assign_left, res) if assign_left else res
+        if len(intermediate) > 0:
+            raise error.SyntaxError("Unexpected end of expastsion.")
+
+        return AssignNode(assign_left, ast) if assign_left else ast
 
     def _term(self) -> Token | BinaryOpNode:
-        res = None
+        ast = None
         negative = False
 
         while self.curr:
             # unary checks
-            if res is None:
+            if ast is None:
                 if self.curr.is_type(TT_MINUS):
                     negative = not negative
                     self._next(check_EOF=True)
@@ -154,21 +156,21 @@ class Parser:
                     self._next(check_EOF=True)
 
             if self.curr.is_types(NUMBERS):
-                res = self.curr
+                ast = self.curr
             elif self.curr.is_type(TT_IDENTIFIER):
-                if res:
-                    res = BinaryOpNode(TT_MUL, res, self.curr, is_paren=True)
+                if ast:
+                    ast = BinaryOpNode(TT_MUL, ast, self.curr, is_paren=True)
                 else:
-                    res = self.curr
+                    ast = self.curr
             else:
                 break
 
             self._next()
 
-        if res is None and (self.curr is None or not self.curr.is_type(TT_LBRACKET)):
+        if ast is None and (self.curr is None or not self.curr.is_type(TT_LBRACKET)):
             if self.curr is None:
-                raise error.SyntaxError("Unexpected end of expression.")
+                raise error.SyntaxError("Unexpected end of expastsion.")
             else:
                 raise error.SyntaxError(f"Unexpected {self.curr}.")
 
-        return UnaryOpNode(TT_MINUS, res, True) if negative else res
+        return UnaryOpNode(TT_MINUS, ast, True) if negative else ast
