@@ -41,3 +41,6 @@ class EvaluateTest(unittest.TestCase):
     def test_func(self):
         self.eval.evaluate("f(x) = 2x + sqrt(9)")
         self.assertEqual(self.eval.evaluate("f(5)"), 13)
+
+    def test_plus_func(self):
+        self.assertEqual(self.eval.evaluate("1 + 2 * abs(2)"), 5)

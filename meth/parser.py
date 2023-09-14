@@ -97,14 +97,16 @@ class Parser:
                             args.append(ast)
 
                         if type(leaf) == Token:
-                            leaf = FunctionNode(leaf, args)
+                            last_intermediate = FunctionNode(leaf, args)
                         else:
                             leaf.right = FunctionNode(leaf.right, args)
 
                         arg_nests -= 1
                         args = []
                     elif type(leaf) == Token or leaf.is_paren:
-                        leaf = BinaryOpNode(TT_MUL, leaf, ast, is_paren=True)
+                        last_intermediate = BinaryOpNode(
+                            TT_MUL, leaf, ast, is_paren=True
+                        )
                     elif leaf.right is None:
                         leaf.right = ast
                     elif type(leaf.right) == UnaryOpNode:

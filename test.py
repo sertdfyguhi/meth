@@ -1,3 +1,3 @@
 import meth
 
-print(meth.evaluate("11 + 2 * ln(2)"))
+print(meth.evaluate("(1 + 2)"))
