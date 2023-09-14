@@ -1,4 +1,3 @@
-from .builtins import is_builtin
 from . import utils, error
 from .token import *
 from .nodes import *
@@ -47,7 +46,7 @@ class Parser:
         res = self._term()
         intermediate = []
         assign_left = None
-        in_args = [False]
+        arg_nests = 0
         args = []
 
         while self.curr:
@@ -73,7 +72,7 @@ class Parser:
             elif self.curr.is_type(TT_LBRACKET):
                 try:
                     if self.tokens[self.i - 1].is_type(TT_IDENTIFIER):
-                        in_args.append(True)
+                        arg_nests += 1
                 except IndexError:
                     # ignore when previous token does not exist
                     pass
@@ -93,7 +92,7 @@ class Parser:
                 if last_intermediate:
                     leaf = utils.get_leaf_node_right(last_intermediate)
 
-                    if in_args[-1]:
+                    if arg_nests > 0:
                         if res:
                             args.append(res)
 
@@ -102,7 +101,7 @@ class Parser:
                         else:
                             leaf.right = FunctionNode(leaf.right, args)
 
-                        in_args.pop()
+                        arg_nests -= 1
                         args = []
                     elif type(leaf) == Token or leaf.is_paren:
                         leaf = BinaryOpNode(TT_MUL, leaf, res, is_paren=True)
@@ -125,7 +124,7 @@ class Parser:
                 assign_left = res
                 self._next(check_EOF=True)
                 res = self._term()
-            elif in_args[-1] and self.curr.is_type(TT_COMMA):
+            elif arg_nests > 0 and self.curr.is_type(TT_COMMA):
                 if res is None:
                     raise error.SyntaxError("Unexpected comma.")
 
@@ -145,6 +144,7 @@ class Parser:
         negative = False
 
         while self.curr:
+            # unary checks
             if res is None:
                 if self.curr.is_type(TT_MINUS):
                     negative = not negative

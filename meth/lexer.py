@@ -64,9 +64,10 @@ class Lexer:
             number += self.curr
             self._next()
 
-        return Token(
-            TT_FLOAT if is_float else TT_INT, (float if is_float else int)(number)
-        )
+        if is_float:
+            return Token(TT_FLOAT, float(number))
+        else:
+            return Token(TT_INT, int(number))
 
     def _identifier(self) -> list[Token]:
         """Tokenizes an identifier."""
