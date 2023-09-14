@@ -6,6 +6,9 @@ from .functions import *
 from . import error, nodes, token, utils
 
 
+__version__ = "1.2.1"
+
+
 def tokenize(expr: str) -> list[token.Token]:
     """
     Tokenize an expression.
