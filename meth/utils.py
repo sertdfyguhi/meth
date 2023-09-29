@@ -114,5 +114,4 @@ def create_number_token(number: int | float) -> Token:
 
     Returns: Token
     """
-    is_int = type(number) == int
-    return Token(TT_INT if is_int else TT_FLOAT, number)
+    return Token(TT_INT if type(number) == int else TT_FLOAT, number)
