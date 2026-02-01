@@ -46,7 +46,7 @@ class EvaluateTest(unittest.TestCase):
     def test_multiple_unary(self):
         self.assertEqual(self.eval.evaluate("--1"), 1)
 
-    def test_unary_parentheses(self):
+    def test_unary_with_parentheses(self):
         self.assertEqual(self.eval.evaluate("-(1 + 2)"), -3)
 
     def test_unary_precedence(self):
@@ -55,11 +55,11 @@ class EvaluateTest(unittest.TestCase):
     def test_implied_multiplication(self):
         self.assertEqual(self.eval.evaluate("3(1 + 2)"), 9)
 
-    def test_unary_implied_multiplication(self):
+    def test_implied_multiplication_with_unary(self):
         self.assertEqual(self.eval.evaluate("-3(1 + 2)"), -9)
 
-    def test_implied_multiplication_parentheses(self):
+    def test_implied_multiplication_with_parentheses(self):
         self.assertEqual(self.eval.evaluate("(1 + 2)(3 + 4)"), 21)
 
-    def test_unary_implied_multiplication_parentheses(self):
+    def test_implied_multiplication_with_parentheses_with_unary(self):
         self.assertEqual(self.eval.evaluate("-(1 + 2)(3 + 4)"), -21)
