@@ -1,3 +1,6 @@
+from .token import TT_ASSIGN
+
+
 class Node:
     def __init__(self, left, value, right):
         self.left = left
@@ -6,6 +9,14 @@ class Node:
 
     def __repr__(self):
         return f"Node({self.left}, {self.value}, {self.right})"
+
+
+class AssignNode(Node):
+    def __init__(self, left, right):
+        super().__init__(left, TT_ASSIGN, right)
+
+    def __repr__(self):
+        return f"Assign({self.left} = {self.right})"
 
 
 class BinaryOpNode(Node):

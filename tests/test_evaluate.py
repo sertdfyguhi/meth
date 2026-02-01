@@ -63,3 +63,24 @@ class EvaluateTest(unittest.TestCase):
 
     def test_implied_multiplication_with_parentheses_with_unary(self):
         self.assertEqual(self.eval.evaluate("-(1 + 2)(3 + 4)"), -21)
+
+    def test_assignment(self):
+        self.eval.evaluate("x = 1")
+        self.assertEqual(self.eval.evaluate("x"), 1)
+
+    def test_assignment_with_expression(self):
+        self.eval.evaluate("x = 1 + 2 * 3 / 3")
+        self.assertEqual(self.eval.evaluate("x"), 3)
+
+    def test_implied_multiplication_with_variables(self):
+        self.eval.evaluate("x = 1")
+        self.assertEqual(self.eval.evaluate("2x"), 2)
+
+    def test_implied_multiplication_with_multiple_variables(self):
+        self.eval.evaluate("x = 2")
+        self.eval.evaluate("y = 3")
+        self.assertEqual(self.eval.evaluate("4xy"), 24)
+
+    def test_implied_multiplication_with_variables_with_unary(self):
+        self.eval.evaluate("x = 1")
+        self.assertEqual(self.eval.evaluate("-2x"), -2)

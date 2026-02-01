@@ -1,3 +1,4 @@
+from .error import *
 from .token import *
 from .node import *
 
@@ -17,14 +18,14 @@ class Parser:
         return self.tokens[self.i + 1] if len(self.tokens) > self.i + 1 else None
 
     def parse(self):
-        return self.parse_add_minus()
+        return self.parse_lowest()
 
     def parse_parentheses(self):
         self.next()
 
         node = self.parse_add_minus()
         if self.curr.token_type != TT_RPAREN:
-            raise ValueError('expected ")"')
+            raise MethSyntaxError('expected ")"')
 
         return node
 
@@ -56,7 +57,7 @@ class Parser:
             self.next()
             return UnaryOpNode(operator, self.parse_highest())
         else:
-            raise NotImplementedError()
+            raise MethSyntaxError(f'unexpected token "{self.curr}"')
 
     def parse_mul_div(self):
         node = self.parse_highest()
@@ -75,5 +76,15 @@ class Parser:
             operator = self.curr.token_type
             self.next()
             node = BinaryOpNode(node, operator, self.parse_mul_div())
+
+        return node
+
+    # for parsing assignments
+    def parse_lowest(self):
+        node = self.parse_add_minus()
+
+        while self.curr and self.curr.token_type == TT_ASSIGN:
+            self.next()
+            node = AssignNode(node, self.parse_add_minus())
 
         return node

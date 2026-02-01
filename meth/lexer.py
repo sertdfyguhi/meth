@@ -1,7 +1,8 @@
 from .token import *
+from .error import *
 import string
 
-OPERATORS = "+-*/"
+OPERATORS = "+-*/()="
 
 
 class Lexer:
@@ -31,11 +32,9 @@ class Lexer:
                 tokens.append(Token(TT_IDENTIFIER, self.curr))
             elif self.curr in OPERATORS:
                 # token type value is the same as operator character
-                tokens.append(OpToken(self.curr))
-            elif self.curr in "()":
                 tokens.append(Token(self.curr))
             else:
-                raise ValueError(f'unrecognized character "{self.curr}"')
+                raise MethSyntaxError(f'unrecognized character "{self.curr}"')
 
             self.next()
 
@@ -48,7 +47,7 @@ class Lexer:
         while self.curr and self.curr in string.digits + ".":
             # if there are multiple dots
             if self.curr == "." and "." in number:
-                raise ValueError("multiple dots in number")
+                raise MethSyntaxError("multiple dots in number")
 
             number += self.curr
             self.next()
