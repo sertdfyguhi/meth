@@ -17,35 +17,44 @@ class Parser:
         return self.tokens[self.i + 1] if len(self.tokens) > self.i + 1 else None
 
     def parse(self):
-        ast = self.parse_add_minus()
-        return ast
+        return self.parse_add_minus()
 
-    # parse highest priority, numbers
+    def parse_parentheses(self):
+        self.next()
+
+        node = self.parse_add_minus()
+        if self.curr.token_type != TT_RPAREN:
+            raise ValueError('expected ")"')
+
+        return node
+
+    # parse highest priority, terms
     def parse_highest(self):
-        if self.curr.token_type in [TT_NUMBER, TT_IDENTIFIER]:
-            node = (
-                NumberNode(self.curr.value)
-                if self.curr.token_type == TT_NUMBER
-                else IdentifierNode(self.curr.value)
-            )
+        if self.curr.token_type in [TT_NUMBER, TT_IDENTIFIER, TT_LPAREN]:
+            if self.curr.token_type == TT_NUMBER:
+                node = NumberNode(self.curr.value)
+            elif self.curr.token_type == TT_IDENTIFIER:
+                node = IdentifierNode(self.curr.value)
+            else:
+                node = self.parse_parentheses()
+
             self.next()
 
-            # also handle terms like: 3x, ax
-            while self.curr and self.curr.token_type == TT_IDENTIFIER:
-                node = BinaryOpNode(node, TT_MUL, IdentifierNode(self.curr.value))
+            # also handle terms like: 3x, ax, 3(1 + 2), (1 + 2)(3 + 4)
+            while self.curr and self.curr.token_type in [TT_IDENTIFIER, TT_LPAREN]:
+                if self.curr.token_type == TT_IDENTIFIER:
+                    right = IdentifierNode(self.curr.value)
+                else:
+                    right = self.parse_parentheses()
+
+                node = BinaryOpNode(node, TT_MUL, right)
                 self.next()
 
             return node
-        elif self.curr.token_type == TT_LPAREN:
+        elif self.curr.token_type in [TT_ADD, TT_MINUS]:
+            operator = self.curr.token_type
             self.next()
-
-            expr_ast = self.parse_add_minus()
-            if self.curr.token_type != TT_RPAREN:
-                raise ValueError('expected ")"')
-
-            self.next()
-
-            return expr_ast
+            return UnaryOpNode(operator, self.parse_highest())
         else:
             raise NotImplementedError()
 

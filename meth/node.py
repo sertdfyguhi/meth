@@ -13,6 +13,14 @@ class BinaryOpNode(Node):
         return f"BinaryOp({self.left}, {self.value}, {self.right})"
 
 
+class UnaryOpNode(Node):
+    def __init__(self, operator, right):
+        super().__init__(None, operator, right)
+
+    def __repr__(self):
+        return f"UnaryOp({self.value}, {self.right})"
+
+
 class NumberNode(Node):
     def __init__(self, value):
         super().__init__(None, value, None)

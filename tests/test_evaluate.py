@@ -36,3 +36,30 @@ class EvaluateTest(unittest.TestCase):
 
     def test_multiple_parentheses(self):
         self.assertEqual(self.eval.evaluate("10 * (2 + 3) / (10 - 5)"), 10)
+
+    def test_unary_minus(self):
+        self.assertEqual(self.eval.evaluate("-1"), -1)
+
+    def test_unary_plus(self):
+        self.assertEqual(self.eval.evaluate("+1"), 1)
+
+    def test_multiple_unary(self):
+        self.assertEqual(self.eval.evaluate("--1"), 1)
+
+    def test_unary_parentheses(self):
+        self.assertEqual(self.eval.evaluate("-(1 + 2)"), -3)
+
+    def test_unary_precedence(self):
+        self.assertEqual(self.eval.evaluate("3 + -(1 + 2)"), 0)
+
+    def test_implied_multiplication(self):
+        self.assertEqual(self.eval.evaluate("3(1 + 2)"), 9)
+
+    def test_unary_implied_multiplication(self):
+        self.assertEqual(self.eval.evaluate("-3(1 + 2)"), -9)
+
+    def test_implied_multiplication_parentheses(self):
+        self.assertEqual(self.eval.evaluate("(1 + 2)(3 + 4)"), 21)
+
+    def test_unary_implied_multiplication_parentheses(self):
+        self.assertEqual(self.eval.evaluate("-(1 + 2)(3 + 4)"), -21)

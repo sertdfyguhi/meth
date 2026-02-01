@@ -35,3 +35,14 @@ class Interpreter:
                 return left / right
             case _:
                 raise ValueError(f'unrecognized operator "{node.value}"')
+
+    def visit_UnaryOpNode(self, node):
+        right = self.visit(node.right)
+
+        match node.value:
+            case "+":
+                return +right
+            case "-":
+                return -right
+            case _:
+                raise ValueError(f'unrecognized operator "{node.value}"')
