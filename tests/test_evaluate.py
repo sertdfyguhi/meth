@@ -25,6 +25,12 @@ class EvaluateTest(unittest.TestCase):
     def test_power(self):
         self.assertEqual(self.eval.evaluate("3 ^ 2"), 9)
 
+    def test_power_syntax2(self):
+        self.assertEqual(self.eval.evaluate("3 ** 2"), 9)
+
+    def test_factorial(self):
+        self.assertEqual(self.eval.evaluate("3!"), 6)
+
     def test_multiply_precedence(self):
         self.assertEqual(self.eval.evaluate("1 + 2 * 3"), 7)
 
@@ -36,6 +42,9 @@ class EvaluateTest(unittest.TestCase):
 
     def test_power_precedence(self):
         self.assertEqual(self.eval.evaluate("1 + 5 * 2 ^ 3"), 41)
+
+    def test_factorial_precedence(self):
+        self.assertEqual(self.eval.evaluate("1 + 5 * 3! ^ 2"), 181)
 
     def test_multiple_precedence(self):
         self.assertEqual(self.eval.evaluate("1 + 2 * 3 - 4 / 2"), 5)

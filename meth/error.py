@@ -1,4 +1,4 @@
-class BaseError(Exception):
+class MethError(Exception):
     def __init__(self, *args: object) -> None:
         self.name = type(self).__name__
         super().__init__(*args)
@@ -7,21 +7,21 @@ class BaseError(Exception):
         return f"{self.name}: {self.args[0]}"
 
 
-class MethSyntaxError(BaseError):
+class MethSyntaxError(MethError):
     pass
 
 
-class MethNotImplError(BaseError):
+class MethNotImplError(MethError):
     pass
 
 
-class MethVarNotDefinedError(BaseError):
+class MethVarNotDefinedError(MethError):
     pass
 
 
-class MethZeroDivError(BaseError):
+class MethZeroDivError(MethError):
     pass
 
 
-class MethArgumentError(BaseError):
+class MethArgumentError(MethError):
     pass

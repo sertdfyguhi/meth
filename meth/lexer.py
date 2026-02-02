@@ -2,8 +2,6 @@ from .token import *
 from .error import *
 import string
 
-OPERATORS = "+-*/%^()="
-
 
 class Lexer:
     def __init__(self, expr):
@@ -15,6 +13,9 @@ class Lexer:
         self.i += 1
         self.curr = self.expr[self.i] if len(self.expr) > self.i else None
         return self.curr
+
+    def peek(self):
+        return self.expr[self.i + 1] if len(self.expr) > self.i + 1 else None
 
     def tokenize(self):
         tokens = []
@@ -30,11 +31,18 @@ class Lexer:
                 continue
             elif self.curr in string.ascii_letters:
                 tokens.append(Token(TT_IDENTIFIER, self.curr))
-            elif self.curr in OPERATORS:
+            elif self.curr in "+-/%^()=!":
                 # token type value is the same as operator character
                 tokens.append(Token(self.curr))
+            elif self.curr == "*":
+                # allow for ** syntax for power
+                if self.peek() == "*":
+                    self.next()
+                    tokens.append(Token(TT_POW))
+                else:
+                    tokens.append(Token(TT_MUL))
             else:
-                raise MethSyntaxError(f'unrecognized character "{self.curr}"')
+                raise MethSyntaxError(f'Unrecognized character "{self.curr}".')
 
             self.next()
 
@@ -47,7 +55,7 @@ class Lexer:
         while self.curr and self.curr in string.digits + ".":
             # if there are multiple dots
             if self.curr == "." and "." in number:
-                raise MethSyntaxError("multiple dots in number")
+                raise MethSyntaxError('Unexpected ".".')
 
             number += self.curr
             self.next()

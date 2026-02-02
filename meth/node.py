@@ -25,8 +25,8 @@ class BinaryOpNode(Node):
 
 
 class UnaryOpNode(Node):
-    def __init__(self, operator, right):
-        super().__init__(None, operator, right)
+    def __init__(self, operator, value):
+        super().__init__(None, operator, value)
 
     def __repr__(self):
         return f"UnaryOp({self.value}, {self.right})"

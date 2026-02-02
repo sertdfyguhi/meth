@@ -10,6 +10,7 @@ TT_MOD = "%"
 
 TT_POW = "^"
 
+TT_FACT = "!"
 TT_LPAREN = "("
 TT_RPAREN = ")"
 TT_ASSIGN = "="

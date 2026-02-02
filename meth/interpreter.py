@@ -1,5 +1,6 @@
 from .node import IdentifierNode
 from .error import *
+import math
 
 
 class Interpreter:
@@ -14,7 +15,7 @@ class Interpreter:
         # find visit function for that type of node using its type name
         visit_func = getattr(self, f"visit_{type(node).__name__}", None)
         if visit_func is None:
-            raise MethNotImplError(f"unknown node type {type(node).__name__}")
+            raise MethNotImplError(f"Unknown node type {type(node).__name__}.")
 
         return visit_func(node)
 
@@ -23,7 +24,7 @@ class Interpreter:
 
     def visit_IdentifierNode(self, node):
         if node.value not in self.variables:
-            raise MethVarNotDefinedError(f'variable "{node.value}" could not be found')
+            raise MethVarNotDefinedError(f'Variable "{node.value}" is not defined.')
 
         return self.variables[node.value]
 
@@ -46,7 +47,7 @@ class Interpreter:
             case "^":
                 return left**right
             case _:
-                raise MethSyntaxError(f'unrecognized operator "{node.value}"')
+                raise MethNotImplError(f'Unknown operator "{node.value}".')
 
     def visit_UnaryOpNode(self, node):
         right = self.visit(node.right)
@@ -56,13 +57,15 @@ class Interpreter:
                 return +right
             case "-":
                 return -right
+            case "!":
+                return math.factorial(right)
             case _:
-                raise MethSyntaxError(f'unrecognized operator "{node.value}"')
+                raise MethNotImplError(f'Unknown unary operator "{node.value}".')
 
     def visit_AssignNode(self, node):
         if not isinstance(node.left, IdentifierNode):
             raise MethSyntaxError(
-                f"expected assignment to identifier, found {node.left}"
+                f"Expected assignment to identifier, found {node.left}."
             )
 
         right = self.visit(node.right)

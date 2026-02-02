@@ -1,6 +1,6 @@
 import meth
 
-tokens = meth.tokenize("1 + 5 * 2 ^ 3")
+tokens = meth.tokenize("1 + 5 ** 2 ^ 3!")
 print(tokens)
 
 ast = meth.parse(tokens)

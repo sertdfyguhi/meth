@@ -14,9 +14,6 @@ class Parser:
         self.curr = self.tokens[self.i] if len(self.tokens) > self.i else None
         return self.curr
 
-    def peek(self):
-        return self.tokens[self.i + 1] if len(self.tokens) > self.i + 1 else None
-
     def parse(self):
         return self.parse_lowest()
 
@@ -25,12 +22,14 @@ class Parser:
 
         node = self.parse_add_minus()
         if self.curr.token_type != TT_RPAREN:
-            raise MethSyntaxError('expected ")"')
+            raise MethSyntaxError('Expected ")".')
 
         return node
 
     # parse highest priority, terms
     def parse_highest(self):
+        node = None
+
         if self.curr.token_type in [TT_NUMBER, TT_IDENTIFIER, TT_LPAREN]:
             if self.curr.token_type == TT_NUMBER:
                 node = NumberNode(self.curr.value)
@@ -50,14 +49,18 @@ class Parser:
 
                 node = BinaryOpNode(node, TT_MUL, right)
                 self.next()
-
-            return node
         elif self.curr.token_type in [TT_ADD, TT_MINUS]:
             operator = self.curr.token_type
             self.next()
-            return UnaryOpNode(operator, self.parse_highest())
+            node = UnaryOpNode(operator, self.parse_highest())
         else:
-            raise MethSyntaxError(f'unexpected token "{self.curr}"')
+            raise MethSyntaxError(f"Unexpected token {self.curr}.")
+
+        while self.curr and self.curr.token_type == TT_FACT:
+            node = UnaryOpNode(TT_FACT, node)
+            self.next()
+
+        return node
 
     def parse_pow(self):
         node = self.parse_highest()
