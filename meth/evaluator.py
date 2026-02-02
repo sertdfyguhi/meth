@@ -1,4 +1,4 @@
-from .interpreter import Interpreter
+from .interpreter import Interpreter, MethFunction
 from .parser import Parser
 from .lexer import Lexer
 from .node import Node
@@ -25,26 +25,26 @@ class Evaluator:
 
         return Interpreter(expr, self.variables).interpret()
 
-    def set_var(self, name: str, value: int | float) -> None:
+    def set_var(self, name: str, value: int | float | MethFunction) -> None:
         """
         Set the value of a variable.
 
         Args:
             name: str
                 Name of the variable to set. Has to be a single character.
-            value: int | float
+            value: int | float | MethFunction
                 Value to set the variable with.
 
         Returns: None
         """
         if len(name) > 1:
             raise ValueError("Name can only be of length one.")
-        if type(value) not in [int, float]:
+        if type(value) not in [int, float, MethFunction]:
             raise TypeError("Value can only be an int or float.")
 
         self.variables[name] = value
 
-    def get_var(self, name: str) -> int | float:
+    def get_var(self, name: str) -> int | float | MethFunction:
         """
         Get the value of a variable.
 
@@ -52,7 +52,7 @@ class Evaluator:
             name: str
                 Name of the variable to get.
 
-        Returns: int | float
+        Returns: int | float | MethFunction
         """
         if name not in self.vars:
             raise ValueError(f'"{name}" is not defined.')

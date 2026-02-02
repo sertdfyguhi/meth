@@ -31,7 +31,7 @@ class Lexer:
                 continue
             elif self.curr in string.ascii_letters:
                 tokens.append(Token(TT_IDENTIFIER, self.curr))
-            elif self.curr in "+-/%^()=!":
+            elif self.curr in "+-/%^()=!,":
                 # token type value is the same as operator character
                 tokens.append(Token(self.curr))
             elif self.curr == "*":

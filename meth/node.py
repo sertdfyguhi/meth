@@ -32,6 +32,15 @@ class UnaryOpNode(Node):
         return f"UnaryOp({self.value}, {self.right})"
 
 
+# can also act as multiplication, eg: x(1 + 2)
+class FunctionNode(Node):
+    def __init__(self, name, args):
+        super().__init__(None, name, args)
+
+    def __repr__(self):
+        return f"Function({self.value}, {self.right})"
+
+
 class NumberNode(Node):
     def __init__(self, value):
         super().__init__(None, value, None)

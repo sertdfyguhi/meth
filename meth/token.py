@@ -14,6 +14,7 @@ TT_FACT = "!"
 TT_LPAREN = "("
 TT_RPAREN = ")"
 TT_ASSIGN = "="
+TT_COMMA = ","
 
 
 class Token:

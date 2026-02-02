@@ -14,15 +14,27 @@ class Parser:
         self.curr = self.tokens[self.i] if len(self.tokens) > self.i else None
         return self.curr
 
+    def peek_before(self):
+        return self.tokens[self.i - 1] if self.i > 0 else None
+
     def parse(self):
         return self.parse_lowest()
 
-    def parse_parentheses(self):
+    def parse_parentheses(self, parse_args=False):
         self.next()
 
         node = self.parse_add_minus()
+
+        # parse as arguments of function
+        if parse_args:
+            node = [node]  # turn it into a list of args
+
+            while self.curr and self.curr.token_type == TT_COMMA:
+                self.next()
+                node.append(self.parse_add_minus())
+
         if self.curr.token_type != TT_RPAREN:
-            raise MethSyntaxError('Expected ")".')
+            raise MethSyntaxError(f'Expected ")", found {self.curr}.')
 
         return node
 
@@ -45,7 +57,23 @@ class Parser:
                 if self.curr.token_type == TT_IDENTIFIER:
                     right = IdentifierNode(self.curr.value)
                 else:
-                    right = self.parse_parentheses()
+                    # if previous token is an identifier and current is parentheses, make a function node
+                    # TODO: update the code to be able to handle sin(x) with multiple identifiers
+                    if self.peek_before().token_type == TT_IDENTIFIER:
+                        right = self.parse_parentheses(parse_args=True)
+
+                        if isinstance(node, IdentifierNode):
+                            node = FunctionNode(node, right)
+                        else:
+                            if not isinstance(node.right, IdentifierNode):
+                                raise MethNotImplError("node.right isn't an identifier")
+
+                            node.right = FunctionNode(node.right, right)
+
+                        self.next()
+                        continue
+                    else:
+                        right = self.parse_parentheses()
 
                 node = BinaryOpNode(node, TT_MUL, right)
                 self.next()

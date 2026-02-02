@@ -1,6 +1,24 @@
-from .node import IdentifierNode
 from .error import *
+from .node import *
 import math
+
+
+class MethFunction:
+    def __init__(self, name, args, ast) -> None:
+        """Initializes a meth function."""
+        self.name = name
+        self.args = args
+        self.ast = ast
+
+    def __call__(self, *args) -> None:
+        if len(args) != len(self.args):
+            raise MethArgumentError(
+                f"{self.name}() takes in {len(self.args)} arguments but {len(args)} were given."
+            )
+
+        return Interpreter(
+            self.ast, {self.args[i].value: args[i] for i in range(len(self.args))}
+        ).interpret()
 
 
 class Interpreter:
@@ -63,10 +81,33 @@ class Interpreter:
                 raise MethNotImplError(f'Unknown unary operator "{node.value}".')
 
     def visit_AssignNode(self, node):
-        if not isinstance(node.left, IdentifierNode):
+        if not isinstance(node.left, (IdentifierNode, FunctionNode)):
             raise MethSyntaxError(
-                f"Expected assignment to identifier, found {node.left}."
+                f"Expected assignment to identifier or function, found {node.left}."
             )
 
-        right = self.visit(node.right)
-        self.variables[node.left.value] = right
+        if isinstance(node.left, FunctionNode):
+            # check if all arguments in function is an identifier, eg: f(x, y) and not f(x+2, y)
+            # ? maybe allow for binary operations in arguments
+            if any(not isinstance(arg, IdentifierNode) for arg in node.left.right):
+                raise MethArgumentError(
+                    "Expected all arguments in function assignment to be identifiers."
+                )
+
+            func = MethFunction(node.left.value.value, node.left.right, node.right)
+            self.variables[node.left.value.value] = func
+        else:
+            right = self.visit(node.right)
+            self.variables[node.left.value] = right
+
+    def visit_FunctionNode(self, node):
+        func = self.visit(node.value)
+
+        if isinstance(func, MethFunction):
+            # visit all arguments and pass it to function
+            return func(*[self.visit(arg) for arg in node.right])
+        else:
+            if len(node.right) > 1:
+                raise MethSyntaxError("Unexpected argument in implied multiplication.")
+
+            return func * self.visit(node.right[0])

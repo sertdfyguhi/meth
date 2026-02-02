@@ -105,3 +105,15 @@ class EvaluateTest(unittest.TestCase):
     def test_implied_multiplication_with_variables_with_unary(self):
         self.eval.evaluate("x = 1")
         self.assertEqual(self.eval.evaluate("-2x"), -2)
+
+    def test_function(self):
+        self.eval.evaluate("f(x) = 2x")
+        self.assertEqual(self.eval.evaluate("f(2)"), 4)
+
+    def test_function_with_multiple_arguments(self):
+        self.eval.evaluate("f(x, y) = 2x + y")
+        self.assertEqual(self.eval.evaluate("f(2, 3)"), 7)
+
+    def test_function_with_implied_multiplication(self):
+        self.eval.evaluate("f(x) = 2x")
+        self.assertEqual(self.eval.evaluate("3f(2)"), 12)
