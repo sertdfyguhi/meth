@@ -19,11 +19,23 @@ class EvaluateTest(unittest.TestCase):
     def test_divide(self):
         self.assertEqual(self.eval.evaluate("6 / 2"), 3)
 
+    def test_modulo(self):
+        self.assertEqual(self.eval.evaluate("7 % 2"), 1)
+
+    def test_power(self):
+        self.assertEqual(self.eval.evaluate("3 ^ 2"), 9)
+
     def test_multiply_precedence(self):
         self.assertEqual(self.eval.evaluate("1 + 2 * 3"), 7)
 
     def test_divide_precedence(self):
         self.assertEqual(self.eval.evaluate("1 + 4 / 2"), 3)
+
+    def test_modulo_precedence(self):
+        self.assertEqual(self.eval.evaluate("1 + 5 % 2"), 2)
+
+    def test_power_precedence(self):
+        self.assertEqual(self.eval.evaluate("1 + 5 * 2 ^ 3"), 41)
 
     def test_multiple_precedence(self):
         self.assertEqual(self.eval.evaluate("1 + 2 * 3 - 4 / 2"), 5)

@@ -2,7 +2,7 @@ from .token import *
 from .error import *
 import string
 
-OPERATORS = "+-*/()="
+OPERATORS = "+-*/%^()="
 
 
 class Lexer:

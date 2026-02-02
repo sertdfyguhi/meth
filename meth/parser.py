@@ -59,23 +59,33 @@ class Parser:
         else:
             raise MethSyntaxError(f'unexpected token "{self.curr}"')
 
-    def parse_mul_div(self):
+    def parse_pow(self):
         node = self.parse_highest()
 
-        while self.curr and self.curr.token_type in [TT_MUL, TT_DIV]:
+        while self.curr and self.curr.token_type == TT_POW:
             operator = self.curr.token_type
             self.next()
             node = BinaryOpNode(node, operator, self.parse_highest())
 
         return node
 
+    def parse_mul_div_mod(self):
+        node = self.parse_pow()
+
+        while self.curr and self.curr.token_type in [TT_MUL, TT_DIV, TT_MOD]:
+            operator = self.curr.token_type
+            self.next()
+            node = BinaryOpNode(node, operator, self.parse_pow())
+
+        return node
+
     def parse_add_minus(self):
-        node = self.parse_mul_div()
+        node = self.parse_mul_div_mod()
 
         while self.curr and self.curr.token_type in [TT_ADD, TT_MINUS]:
             operator = self.curr.token_type
             self.next()
-            node = BinaryOpNode(node, operator, self.parse_mul_div())
+            node = BinaryOpNode(node, operator, self.parse_mul_div_mod())
 
         return node
 

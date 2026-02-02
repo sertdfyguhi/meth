@@ -41,6 +41,10 @@ class Interpreter:
                 return left * right
             case "/":
                 return left / right
+            case "%":
+                return left % right
+            case "^":
+                return left**right
             case _:
                 raise MethSyntaxError(f'unrecognized operator "{node.value}"')
 
