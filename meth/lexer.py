@@ -7,7 +7,14 @@ ALLOWED_CHARS = string.ascii_letters + "".join(CONSTANTS.keys())
 
 
 class Lexer:
-    def __init__(self, expr):
+    def __init__(self, expr: str) -> None:
+        """
+        Initializes the lexer.
+
+        Args:
+            expr: str
+                The expression to tokenize.
+        """
         self.expr = expr
         self.i = -1
         self.next()
@@ -20,7 +27,12 @@ class Lexer:
     def peek(self):
         return self.expr[self.i + 1] if len(self.expr) > self.i + 1 else None
 
-    def tokenize(self):
+    def tokenize(self) -> list[Token]:
+        """
+        Tokenizes the expression.
+
+        Returns: list[Token]
+        """
         tokens = []
 
         while self.curr:

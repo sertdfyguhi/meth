@@ -1,7 +1,5 @@
 # meth: A mathematical expression parser.
 
-# **V2.0.0 REWRITE**
-
 A python package to parse and evaluate mathematical expressions.
 
 # Installation
@@ -27,10 +25,10 @@ pip install dist/*.whl
 import meth
 
 # tokenizing equations
-meth.tokenize("5 + 2") # INT(5), PLUS, INT(2)
+tokens = meth.tokenize("5 + 2") # Token(NUMBER, 5), Token(+), Token(NUMBER, 2)
 
 # parsing equations
-meth.parse("2 * 10") # BinaryOpNode(INT(2), MUL, INT(10))
+ast = meth.parse(tokens) # BinaryOp(Number(5), +, Number(2))
 
 # evaluating equations
 meth.evaluate("2 + 2") # 4
@@ -41,25 +39,3 @@ evaluator = meth.Evaluator()
 evaluator.evaluate("x = 5")
 evaluator.evaluate("x") # 5
 ```
-
-# Todo
-
-- [x] Lexer
-- [x] Parser
-  - [x] Bracketing
-  - [x] Multiplication using brackets
-  - [x] Negative Numbers
-  - [x] Variables
-  - [x] Functions
-- [x] Interpreter
-  - [x] Binary Operations
-  - [x] Unary Operations
-  - [x] Variables
-  - [x] Functions
-- [x] Add mathematical functions
-- [ ] Accurate float calculations
-- [ ] Simplify an expression
-- [ ] Expand an expression
-- [x] AST to Equation String
-- [ ] Documentation
-- [x] Publish to PyPI

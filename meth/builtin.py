@@ -28,7 +28,6 @@ CONSTANTS = {
 }
 
 BUILTINS = {
-    # trigonometric functions
     "sin": math.sin,
     "sinh": math.sinh,
     "cos": math.cos,

@@ -23,4 +23,7 @@ class Token:
         self.value = value
 
     def __repr__(self):
-        return f"Token({self.token_type}, {self.value})"
+        if self.value:
+            return f"Token({self.token_type}, {self.value})"
+        else:
+            return f"Token({self.token_type})"

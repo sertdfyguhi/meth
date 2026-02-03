@@ -23,6 +23,7 @@ class MethFunction:
 
 
 def _get_variable_or_constant(name, variables):
+    """Get name from variables or constants."""
     if name in variables:
         return variables[name]
     elif name in CONSTANTS:
@@ -32,6 +33,7 @@ def _get_variable_or_constant(name, variables):
 
 
 def _find_product_of_identifier(identifier, variables):
+    """Gets the product of all variables in an identifier."""
     product = 1
 
     for char in identifier:
@@ -48,11 +50,27 @@ def _find_product_of_identifier(identifier, variables):
 
 
 class Interpreter:
-    def __init__(self, ast, variables={}):
+    def __init__(
+        self, ast: Node, variables: dict[str, int | float | Callable] = {}
+    ) -> None:
+        """
+        Initializes the interpreter.
+
+        Args:
+            ast: Node
+                Abstract syntax tree to interpret.
+            vars: dict[str, int | float | Callable] = {}
+                Dictionary of variables.
+        """
         self.ast = ast
         self.variables = variables
 
-    def interpret(self):
+    def interpret(self) -> int | float | Callable | None:
+        """
+        Interprets the AST.
+
+        Returns: int | float | Callable | None
+        """
         return self.visit(self.ast)
 
     def visit(self, node):

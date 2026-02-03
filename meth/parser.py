@@ -4,7 +4,14 @@ from .node import *
 
 
 class Parser:
-    def __init__(self, tokens):
+    def __init__(self, tokens: list[Token]) -> None:
+        """
+        Initializes the parser.
+
+        Args:
+            tokens: list[Token]
+                The tokens to create the AST from.
+        """
         self.tokens = tokens
         self.i = -1
         self.next()
@@ -14,7 +21,12 @@ class Parser:
         self.curr = self.tokens[self.i] if len(self.tokens) > self.i else None
         return self.curr
 
-    def parse(self):
+    def parse(self) -> Node | None:
+        """
+        Parses the tokens into an AST.
+
+        Returns: Node | None
+        """
         return self.parse_lowest()
 
     def parse_parentheses(self, parse_args=False):

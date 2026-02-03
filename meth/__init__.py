@@ -37,7 +37,7 @@ def parse(tokens: list[Token]) -> Node | None:
     return Parser(tokens).parse()
 
 
-def interpret(ast: Node) -> int | float | None:
+def interpret(ast: Node) -> int | float | Callable | None:
     """
     Interprets an AST (abstract syntax tree).
 
@@ -45,6 +45,19 @@ def interpret(ast: Node) -> int | float | None:
         ast: Node
             The AST to interpret.
 
-    Returns: int | float | None
+    Returns: int | float | Callable | None
     """
     return Interpreter(ast).interpret()
+
+
+def evaluate(expr: str) -> int | float | None:
+    """
+    Evaluates an expression.
+
+    Args:
+        expr: str
+            The expression to evaluate.
+
+    Returns: int | float | Callable | None
+    """
+    return interpret(parse(tokenize(expr)))
