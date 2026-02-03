@@ -117,3 +117,20 @@ class EvaluateTest(unittest.TestCase):
     def test_function_with_implied_multiplication(self):
         self.eval.evaluate("f(x) = 2x")
         self.assertEqual(self.eval.evaluate("3f(2)"), 12)
+
+    def test_builtin(self):
+        # sin(pi)
+        self.assertAlmostEqual(self.eval.evaluate("sin(π)"), 0)
+
+    def test_builtin_multiplication_with_multiple_variables(self):
+        self.eval.evaluate("x = 2")
+        self.eval.evaluate("y = 3")
+        self.assertEqual(self.eval.evaluate("xysqrt(4)"), 12)
+
+    def test_builtin_multiplication_with_builtin(self):
+        self.assertEqual(self.eval.evaluate("sqrt(4)sqrt(9)"), 6)
+
+    def test_builtin_multiplication_with_builtin_and_variables(self):
+        self.eval.evaluate("x = 2")
+        self.eval.evaluate("y = 3")
+        self.assertEqual(self.eval.evaluate("xsqrt(4)ysqrt(9)"), 36)

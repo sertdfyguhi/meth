@@ -14,9 +14,6 @@ class Parser:
         self.curr = self.tokens[self.i] if len(self.tokens) > self.i else None
         return self.curr
 
-    def peek_before(self):
-        return self.tokens[self.i - 1] if self.i > 0 else None
-
     def parse(self):
         return self.parse_lowest()
 
@@ -53,13 +50,20 @@ class Parser:
             self.next()
 
             # also handle terms like: 3x, ax, 3(1 + 2), (1 + 2)(3 + 4)
-            while self.curr and self.curr.token_type in [TT_IDENTIFIER, TT_LPAREN]:
-                if self.curr.token_type == TT_IDENTIFIER:
-                    right = IdentifierNode(self.curr.value)
+            while self.curr and self.curr.token_type in [
+                TT_NUMBER,
+                TT_IDENTIFIER,
+                TT_LPAREN,
+            ]:
+                if self.curr.token_type == TT_NUMBER:
+                    node = BinaryOpNode(node, TT_MUL, NumberNode(self.curr.value))
+                elif self.curr.token_type == TT_IDENTIFIER:
+                    node = BinaryOpNode(node, TT_MUL, IdentifierNode(self.curr.value))
                 else:
-                    # if previous token is an identifier and current is parentheses, make a function node
-                    # TODO: update the code to be able to handle sin(x) with multiple identifiers
-                    if self.peek_before().token_type == TT_IDENTIFIER:
+                    if isinstance(node, IdentifierNode) or isinstance(
+                        node.right, IdentifierNode
+                    ):
+                        # if previous token is an identifier and current is parentheses, make a function node
                         right = self.parse_parentheses(parse_args=True)
 
                         if isinstance(node, IdentifierNode):
@@ -69,13 +73,9 @@ class Parser:
                                 raise MethNotImplError("node.right isn't an identifier")
 
                             node.right = FunctionNode(node.right, right)
-
-                        self.next()
-                        continue
                     else:
-                        right = self.parse_parentheses()
+                        node = BinaryOpNode(node, TT_MUL, self.parse_parentheses())
 
-                node = BinaryOpNode(node, TT_MUL, right)
                 self.next()
         elif self.curr.token_type in [TT_ADD, TT_MINUS]:
             operator = self.curr.token_type

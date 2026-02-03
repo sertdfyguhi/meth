@@ -1,6 +1,6 @@
 import meth
 
-# tokens = meth.tokenize("2af(x + 2, 2) * (x - 2)")
+# tokens = meth.tokenize("xsin")
 # print(tokens)
 
 # ast = meth.parse(tokens)
@@ -10,5 +10,6 @@ import meth
 # print(result)
 
 evaluator = meth.Evaluator()
-print(evaluator.evaluate("f(x, y) = 2x + y"))
-print(evaluator.evaluate("f(2, 3)"))
+print(evaluator.evaluate("x = 2"))
+print(evaluator.evaluate("y = 3"))
+print(evaluator.evaluate("xytan(2)cos(7)3"))

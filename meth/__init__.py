@@ -2,6 +2,7 @@ from .interpreter import Interpreter
 from .evaluator import Evaluator
 from .parser import Parser
 from .lexer import Lexer
+from .builtin import *
 from .token import *
 from .error import *
 from .node import *

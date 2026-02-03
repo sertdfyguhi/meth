@@ -1,6 +1,9 @@
+from .builtin import CONSTANTS
 from .token import *
 from .error import *
 import string
+
+ALLOWED_CHARS = string.ascii_letters + "".join(CONSTANTS.keys())
 
 
 class Lexer:
@@ -29,8 +32,9 @@ class Lexer:
             if self.curr in string.digits + ".":
                 tokens.append(self.tokenize_number())
                 continue
-            elif self.curr in string.ascii_letters:
-                tokens.append(Token(TT_IDENTIFIER, self.curr))
+            elif self.curr in ALLOWED_CHARS:
+                tokens.append(self.tokenize_identifier())
+                continue
             elif self.curr in "+-/%^()=!,":
                 # token type value is the same as operator character
                 tokens.append(Token(self.curr))
@@ -61,3 +65,12 @@ class Lexer:
             self.next()
 
         return Token(TT_NUMBER, float(number) if "." in number else int(number))
+
+    def tokenize_identifier(self):
+        identifier = ""
+
+        while self.curr and self.curr in ALLOWED_CHARS:
+            identifier += self.curr
+            self.next()
+
+        return Token(TT_IDENTIFIER, identifier)

@@ -25,3 +25,7 @@ class MethZeroDivError(MethError):
 
 class MethArgumentError(MethError):
     pass
+
+
+class MethValueError(MethError):
+    pass

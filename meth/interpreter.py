@@ -1,3 +1,4 @@
+from .builtin import *
 from .error import *
 from .node import *
 import math
@@ -21,6 +22,31 @@ class MethFunction:
         ).interpret()
 
 
+def _get_variable_or_constant(name, variables):
+    if name in variables:
+        return variables[name]
+    elif name in CONSTANTS:
+        return CONSTANTS[name]
+    else:
+        raise MethVarNotDefinedError(f'Variable "{name}" is not defined.')
+
+
+def _find_product_of_identifier(identifier, variables):
+    product = 1
+
+    for char in identifier:
+        value = _get_variable_or_constant(char, variables)
+
+        if type(value) not in [int, float]:
+            raise MethValueError(
+                f'Expected variable "{char}" to be number, found {type(value)}.'
+            )
+
+        product *= value
+
+    return product
+
+
 class Interpreter:
     def __init__(self, ast, variables={}):
         self.ast = ast
@@ -41,10 +67,28 @@ class Interpreter:
         return node.value
 
     def visit_IdentifierNode(self, node):
-        if node.value not in self.variables:
-            raise MethVarNotDefinedError(f'Variable "{node.value}" is not defined.')
+        identifier = node.value
 
-        return self.variables[node.value]
+        if len(identifier) > 1:
+            if is_builtin(identifier):
+                return get_builtin(identifier)
+
+            for name in BUILTINS:
+                if identifier.endswith(name):
+                    builtin = get_builtin(name)
+                    product = _find_product_of_identifier(
+                        identifier[: -len(name)], self.variables
+                    )
+
+                    if callable(builtin):
+                        return lambda *args: product * builtin(*args)
+                    else:
+                        # if builtin is a number, multiply it with the other variables
+                        return product * builtin
+
+            return _find_product_of_identifier(identifier, self.variables)
+        else:
+            return _get_variable_or_constant(identifier, self.variables)
 
     def visit_BinaryOpNode(self, node):
         left = self.visit(node.left)
@@ -87,6 +131,11 @@ class Interpreter:
             )
 
         if isinstance(node.left, FunctionNode):
+            if len(node.left.value.value) > 1:
+                raise MethSyntaxError(
+                    f"Function assignment name cannot be more than one character."
+                )
+
             # check if all arguments in function is an identifier, eg: f(x, y) and not f(x+2, y)
             # ? maybe allow for binary operations in arguments
             if any(not isinstance(arg, IdentifierNode) for arg in node.left.right):
@@ -103,7 +152,7 @@ class Interpreter:
     def visit_FunctionNode(self, node):
         func = self.visit(node.value)
 
-        if isinstance(func, MethFunction):
+        if callable(func):
             # visit all arguments and pass it to function
             return func(*[self.visit(arg) for arg in node.right])
         else:
