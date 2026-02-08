@@ -3,7 +3,7 @@ from .token import *
 from .error import *
 import string
 
-ALLOWED_CHARS = string.ascii_letters + "".join(CONSTANTS.keys())
+ALLOWED_VARIABLE_CHARS = string.ascii_letters + "".join(CONSTANTS.keys())
 
 
 class Lexer:
@@ -17,14 +17,14 @@ class Lexer:
         """
         self.expr = expr
         self.i = -1
-        self.next()
+        self._next()
 
-    def next(self):
+    def _next(self):
         self.i += 1
         self.curr = self.expr[self.i] if len(self.expr) > self.i else None
         return self.curr
 
-    def peek(self):
+    def _peek(self):
         return self.expr[self.i + 1] if len(self.expr) > self.i + 1 else None
 
     def tokenize(self) -> list[Token]:
@@ -38,33 +38,33 @@ class Lexer:
         while self.curr:
             # ignore whitespaces
             if self.curr == " ":
-                self.next()
+                self._next()
                 continue
 
             if self.curr in string.digits + ".":
-                tokens.append(self.tokenize_number())
+                tokens.append(self._tokenize_number())
                 continue
-            elif self.curr in ALLOWED_CHARS:
-                tokens.append(self.tokenize_identifier())
+            elif self.curr in ALLOWED_VARIABLE_CHARS:
+                tokens.append(self._tokenize_identifier())
                 continue
             elif self.curr in "+-/%^()=!,":
                 # token type value is the same as operator character
                 tokens.append(Token(self.curr))
             elif self.curr == "*":
                 # allow for ** syntax for power
-                if self.peek() == "*":
-                    self.next()
+                if self._peek() == "*":
+                    self._next()
                     tokens.append(Token(TT_POW))
                 else:
                     tokens.append(Token(TT_MUL))
             else:
                 raise MethSyntaxError(f'Unrecognized character "{self.curr}".')
 
-            self.next()
+            self._next()
 
         return tokens
 
-    def tokenize_number(self):
+    def _tokenize_number(self):
         number = ""
 
         # check self.curr too to ensure its not None
@@ -74,15 +74,15 @@ class Lexer:
                 raise MethSyntaxError('Unexpected ".".')
 
             number += self.curr
-            self.next()
+            self._next()
 
         return Token(TT_NUMBER, float(number) if "." in number else int(number))
 
-    def tokenize_identifier(self):
+    def _tokenize_identifier(self):
         identifier = ""
 
-        while self.curr and self.curr in ALLOWED_CHARS:
+        while self.curr and self.curr in ALLOWED_VARIABLE_CHARS:
             identifier += self.curr
-            self.next()
+            self._next()
 
         return Token(TT_IDENTIFIER, identifier)

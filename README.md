@@ -1,4 +1,4 @@
-# meth: A mathematical expression parser.
+# meth: A mathematical expression evaluator.
 
 A python package to parse and evaluate mathematical expressions.
 

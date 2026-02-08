@@ -71,20 +71,20 @@ class Interpreter:
 
         Returns: int | float | Callable | None
         """
-        return self.visit(self.ast)
+        return self._visit(self.ast)
 
-    def visit(self, node):
+    def _visit(self, node):
         # find visit function for that type of node using its type name
-        visit_func = getattr(self, f"visit_{type(node).__name__}", None)
+        visit_func = getattr(self, f"_visit_{type(node).__name__}", None)
         if visit_func is None:
             raise MethNotImplError(f"Unknown node type {type(node).__name__}.")
 
         return visit_func(node)
 
-    def visit_NumberNode(self, node):
+    def _visit_NumberNode(self, node):
         return node.value
 
-    def visit_IdentifierNode(self, node):
+    def _visit_IdentifierNode(self, node):
         identifier = node.value
 
         if len(identifier) > 1:
@@ -108,9 +108,9 @@ class Interpreter:
         else:
             return _get_variable_or_constant(identifier, self.variables)
 
-    def visit_BinaryOpNode(self, node):
-        left = self.visit(node.left)
-        right = self.visit(node.right)
+    def _visit_BinaryOpNode(self, node):
+        left = self._visit(node.left)
+        right = self._visit(node.right)
 
         # cant use token type variables due to being recognized as a pattern
         match node.value:
@@ -129,8 +129,8 @@ class Interpreter:
             case _:
                 raise MethNotImplError(f'Unknown operator "{node.value}".')
 
-    def visit_UnaryOpNode(self, node):
-        right = self.visit(node.right)
+    def _visit_UnaryOpNode(self, node):
+        right = self._visit(node.right)
 
         match node.value:
             case "+":
@@ -142,7 +142,7 @@ class Interpreter:
             case _:
                 raise MethNotImplError(f'Unknown unary operator "{node.value}".')
 
-    def visit_AssignNode(self, node):
+    def _visit_AssignNode(self, node):
         if not isinstance(node.left, (IdentifierNode, FunctionNode)):
             raise MethSyntaxError(
                 f"Expected assignment to identifier or function, found {node.left}."
@@ -164,17 +164,17 @@ class Interpreter:
             func = MethFunction(node.left.value.value, node.left.right, node.right)
             self.variables[node.left.value.value] = func
         else:
-            right = self.visit(node.right)
+            right = self._visit(node.right)
             self.variables[node.left.value] = right
 
-    def visit_FunctionNode(self, node):
-        func = self.visit(node.value)
+    def _visit_FunctionNode(self, node):
+        func = self._visit(node.value)
 
         if callable(func):
             # visit all arguments and pass it to function
-            return func(*[self.visit(arg) for arg in node.right])
+            return func(*[self._visit(arg) for arg in node.right])
         else:
             if len(node.right) > 1:
                 raise MethSyntaxError("Unexpected argument in implied multiplication.")
 
-            return func * self.visit(node.right[0])
+            return func * self._visit(node.right[0])

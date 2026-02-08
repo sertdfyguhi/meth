@@ -2,12 +2,13 @@ from .interpreter import Interpreter
 from .evaluator import Evaluator
 from .parser import Parser
 from .lexer import Lexer
+from .functions import *
 from .builtin import *
 from .token import *
 from .error import *
 from .node import *
 
-__version__ = "2.0.0"
+__version__ = "2.1.0"
 __author__ = "sertdfyguhi"
 
 
