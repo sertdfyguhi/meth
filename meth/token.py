@@ -1,24 +1,34 @@
-TT_NUMBER = "NUMBER"
-TT_IDENTIFIER = "IDENTIFIER"
+from enum import Enum
 
-TT_ADD = "+"
-TT_MINUS = "-"
 
-TT_MUL = "*"
-TT_DIV = "/"
-TT_MOD = "%"
+class TokenType(Enum):
+    NUMBER = "NUMBER"
+    IDENTIFIER = "IDENTIFIER"
 
-TT_POW = "^"
+    # lowest precedence
+    ADD = "+"
+    MINUS = "-"
 
-TT_FACT = "!"
-TT_LPAREN = "("
-TT_RPAREN = ")"
-TT_ASSIGN = "="
-TT_COMMA = ","
+    # second precedence
+    MUL = "*"
+    DIV = "/"
+    MOD = "%"
+
+    # third precedence
+    POW = "^"
+
+    # highest precedence
+    FACT = "!"
+    LPAREN = "("
+    RPAREN = ")"
+
+    ASSIGN = "="
+    COMMA = ","
 
 
 class Token:
-    def __init__(self, token_type, value=None):
+    def __init__(self, token_type: TokenType, value=None):
+        """Initializes a token."""
         self.token_type = token_type
         self.value = value
 

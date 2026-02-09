@@ -3,13 +3,15 @@ from .parser import Parser
 from .lexer import Lexer
 from .node import Node
 
+from numbers import Number
+
 
 class Evaluator:
     def __init__(self, variables={}) -> None:
         """Initializes an evaluator with variables."""
         self.variables = variables
 
-    def evaluate(self, expr: Node | str) -> int | float | None:
+    def evaluate(self, expr: Node | str) -> Number | None:
         """
         Evaluate an expression.
 
@@ -20,31 +22,33 @@ class Evaluator:
         Returns: int | float | None
         """
         if type(expr) == str:
-            tokens = Lexer(expr).tokenize()
-            expr = Parser(tokens).parse()
+            expr = Lexer(expr).tokenize()
+
+        if type(expr) == list:
+            expr = Parser(expr).parse()
 
         return Interpreter(expr, self.variables).interpret()
 
-    def set_var(self, name: str, value: int | float | MethFunction) -> None:
+    def set_var(self, name: str, value: Number | MethFunction) -> None:
         """
         Set the value of a variable.
 
         Args:
             name: str
                 Name of the variable to set. Has to be a single character.
-            value: int | float | MethFunction
+            value: Number | MethFunction
                 Value to set the variable with.
 
         Returns: None
         """
         if len(name) > 1:
             raise ValueError("Name can only be of length one.")
-        if type(value) not in [int, float, MethFunction]:
-            raise TypeError("Value can only be an int or float.")
+        if not isinstance(value, (Number, MethFunction)):
+            raise TypeError("Value can only be a number or MethFunction.")
 
         self.variables[name] = value
 
-    def get_var(self, name: str) -> int | float | MethFunction:
+    def get_var(self, name: str) -> Number | MethFunction:
         """
         Get the value of a variable.
 
@@ -52,7 +56,7 @@ class Evaluator:
             name: str
                 Name of the variable to get.
 
-        Returns: int | float | MethFunction
+        Returns: Number | MethFunction
         """
         if name not in self.vars:
             raise ValueError(f'"{name}" is not defined.')

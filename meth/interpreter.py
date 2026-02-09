@@ -1,6 +1,10 @@
+from .token import TokenType
 from .builtin import *
 from .error import *
 from .node import *
+
+
+from numbers import Number
 import math
 
 
@@ -50,22 +54,20 @@ def _find_product_of_identifier(identifier, variables):
 
 
 class Interpreter:
-    def __init__(
-        self, ast: Node, variables: dict[str, int | float | Callable] = {}
-    ) -> None:
+    def __init__(self, ast: Node, variables: dict[str, Number | Callable] = {}) -> None:
         """
         Initializes the interpreter.
 
         Args:
             ast: Node
                 Abstract syntax tree to interpret.
-            vars: dict[str, int | float | Callable] = {}
+            vars: dict[str, Number| Callable] = {}
                 Dictionary of variables.
         """
         self.ast = ast
         self.variables = variables
 
-    def interpret(self) -> int | float | Callable | None:
+    def interpret(self) -> Number | Callable | None:
         """
         Interprets the AST.
 
@@ -114,17 +116,17 @@ class Interpreter:
 
         # cant use token type variables due to being recognized as a pattern
         match node.value:
-            case "+":
+            case TokenType.ADD:
                 return left + right
-            case "-":
+            case TokenType.MINUS:
                 return left - right
-            case "*":
+            case TokenType.MUL:
                 return left * right
-            case "/":
+            case TokenType.DIV:
                 return left / right
-            case "%":
+            case TokenType.MOD:
                 return left % right
-            case "^":
+            case TokenType.POW:
                 return left**right
             case _:
                 raise MethNotImplError(f'Unknown operator "{node.value}".')
@@ -133,11 +135,11 @@ class Interpreter:
         right = self._visit(node.right)
 
         match node.value:
-            case "+":
+            case TokenType.ADD:
                 return +right
-            case "-":
+            case TokenType.MINUS:
                 return -right
-            case "!":
+            case TokenType.FACT:
                 return math.factorial(right)
             case _:
                 raise MethNotImplError(f'Unknown unary operator "{node.value}".')

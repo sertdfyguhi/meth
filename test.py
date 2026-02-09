@@ -1,17 +1,15 @@
 import meth
 
-tokens = meth.tokenize("3x(1)")
-# print(tokens)
+tokens = meth.tokenize("3 + 1")
+print(tokens)
 
 ast = meth.parse(tokens)
 print(ast)
 
-print(meth.stringify(ast))
+result = meth.evaluate(ast)
+print(result)
 
-# result = meth.Interpreter(ast).interpret()
-# print(result)
+# print(meth.stringify(ast))
 
 # evaluator = meth.Evaluator()
-# print(evaluator.evaluate("x = 2"))
-# print(evaluator.evaluate("y = 3"))
-# print(evaluator.evaluate("xytan(2)cos(7)3"))
+# print(evaluator.evaluate("2 + 3"))

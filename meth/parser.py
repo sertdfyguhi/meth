@@ -1,5 +1,5 @@
+from .token import Token, TokenType
 from .error import *
-from .token import *
 from .node import *
 
 
@@ -38,11 +38,11 @@ class Parser:
         if parse_args:
             node = [node]  # turn it into a list of args
 
-            while self.curr and self.curr.token_type == TT_COMMA:
+            while self.curr and self.curr.token_type == TokenType.COMMA:
                 self._next()
                 node.append(self._parse_add_minus())
 
-        if self.curr.token_type != TT_RPAREN:
+        if self.curr.token_type != TokenType.RPAREN:
             raise MethSyntaxError(f'Expected ")", found {self.curr}.')
 
         return node
@@ -51,10 +51,14 @@ class Parser:
     def _parse_highest(self):
         node = None
 
-        if self.curr.token_type in [TT_NUMBER, TT_IDENTIFIER, TT_LPAREN]:
-            if self.curr.token_type == TT_NUMBER:
+        if self.curr.token_type in [
+            TokenType.NUMBER,
+            TokenType.IDENTIFIER,
+            TokenType.LPAREN,
+        ]:
+            if self.curr.token_type == TokenType.NUMBER:
                 node = NumberNode(self.curr.value)
-            elif self.curr.token_type == TT_IDENTIFIER:
+            elif self.curr.token_type == TokenType.IDENTIFIER:
                 node = IdentifierNode(self.curr.value)
             else:
                 node = self._parse_parentheses()
@@ -63,19 +67,23 @@ class Parser:
 
             # also handle terms like: 3x, ax, 3(1 + 2), (1 + 2)(3 + 4)
             while self.curr and self.curr.token_type in [
-                TT_NUMBER,
-                TT_IDENTIFIER,
-                TT_LPAREN,
+                TokenType.NUMBER,
+                TokenType.IDENTIFIER,
+                TokenType.LPAREN,
             ]:
-                if self.curr.token_type == TT_NUMBER:
+                if self.curr.token_type == TokenType.NUMBER:
                     if isinstance(node, NumberNode):
                         raise MethSyntaxError(
                             "Expected identifier or parentheses, found number."
                         )
 
-                    node = BinaryOpNode(node, TT_MUL, NumberNode(self.curr.value))
-                elif self.curr.token_type == TT_IDENTIFIER:
-                    node = BinaryOpNode(node, TT_MUL, IdentifierNode(self.curr.value))
+                    node = BinaryOpNode(
+                        node, TokenType.MUL, NumberNode(self.curr.value)
+                    )
+                elif self.curr.token_type == TokenType.IDENTIFIER:
+                    node = BinaryOpNode(
+                        node, TokenType.MUL, IdentifierNode(self.curr.value)
+                    )
                 else:
                     if isinstance(node, IdentifierNode) or isinstance(
                         node.right, IdentifierNode
@@ -91,18 +99,20 @@ class Parser:
 
                             node.right = FunctionNode(node.right, right)
                     else:
-                        node = BinaryOpNode(node, TT_MUL, self._parse_parentheses())
+                        node = BinaryOpNode(
+                            node, TokenType.MUL, self._parse_parentheses()
+                        )
 
                 self._next()
-        elif self.curr.token_type in [TT_ADD, TT_MINUS]:
+        elif self.curr.token_type in [TokenType.ADD, TokenType.MINUS]:
             operator = self.curr.token_type
             self._next()
             node = UnaryOpNode(operator, self._parse_highest())
         else:
             raise MethSyntaxError(f"Unexpected token {self.curr}.")
 
-        while self.curr and self.curr.token_type == TT_FACT:
-            node = UnaryOpNode(TT_FACT, node)
+        while self.curr and self.curr.token_type == TokenType.FACT:
+            node = UnaryOpNode(TokenType.FACT, node)
             self._next()
 
         return node
@@ -110,7 +120,7 @@ class Parser:
     def _parse_pow(self):
         node = self._parse_highest()
 
-        while self.curr and self.curr.token_type == TT_POW:
+        while self.curr and self.curr.token_type == TokenType.POW:
             operator = self.curr.token_type
             self._next()
             node = BinaryOpNode(node, operator, self._parse_highest())
@@ -120,7 +130,11 @@ class Parser:
     def _parse_mul_div_mod(self):
         node = self._parse_pow()
 
-        while self.curr and self.curr.token_type in [TT_MUL, TT_DIV, TT_MOD]:
+        while self.curr and self.curr.token_type in [
+            TokenType.MUL,
+            TokenType.DIV,
+            TokenType.MOD,
+        ]:
             operator = self.curr.token_type
             self._next()
             node = BinaryOpNode(node, operator, self._parse_pow())
@@ -130,7 +144,7 @@ class Parser:
     def _parse_add_minus(self):
         node = self._parse_mul_div_mod()
 
-        while self.curr and self.curr.token_type in [TT_ADD, TT_MINUS]:
+        while self.curr and self.curr.token_type in [TokenType.ADD, TokenType.MINUS]:
             operator = self.curr.token_type
             self._next()
             node = BinaryOpNode(node, operator, self._parse_mul_div_mod())
@@ -141,7 +155,7 @@ class Parser:
     def _parse_lowest(self):
         node = self._parse_add_minus()
 
-        while self.curr and self.curr.token_type == TT_ASSIGN:
+        while self.curr and self.curr.token_type == TokenType.ASSIGN:
             self._next()
             node = AssignNode(node, self._parse_add_minus())
 

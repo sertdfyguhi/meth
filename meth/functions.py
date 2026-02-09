@@ -1,14 +1,14 @@
-from .token import *
+from .token import TokenType
 from .node import *
 
 
 PRECEDNECE = {
-    TT_ADD: 1,
-    TT_MINUS: 1,
-    TT_MUL: 2,
-    TT_DIV: 2,
-    TT_MOD: 2,
-    TT_POW: 3,
+    TokenType.ADD: 1,
+    TokenType.MINUS: 1,
+    TokenType.MUL: 2,
+    TokenType.DIV: 2,
+    TokenType.MOD: 2,
+    TokenType.POW: 3,
 }
 
 
@@ -46,7 +46,7 @@ def stringify(ast: Node) -> str:
     elif isinstance(ast, UnaryOpNode):
         right = stringify(ast.right)
         # factorial is behind the number unlike plus and minus
-        return f"{right}!" if ast.value == TT_FACT else f"{ast.value}{right}"
+        return f"{right}!" if ast.value == TokenType.FACT else f"{ast.value}{right}"
     elif isinstance(ast, FunctionNode):
         args = ", ".join([str(stringify(arg)) for arg in ast.right])
         return f"{stringify(ast.value)}({args})"

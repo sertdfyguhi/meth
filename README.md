@@ -24,14 +24,15 @@ pip install dist/*.whl
 ```py
 import meth
 
-# tokenizing equations
-tokens = meth.tokenize("5 + 2") # Token(NUMBER, 5), Token(+), Token(NUMBER, 2)
+# tokenizing expression
+meth.tokenize("5 + 2") # [Token(NUMBER, 5), Token(+), Token(NUMBER, 2)]
 
-# parsing equations
-ast = meth.parse(tokens) # BinaryOp(Number(5), +, Number(2))
+# parsing expression
+meth.parse("7 * 2") # BinaryOp(Number(7), *, Number(2))
 
-# evaluating equations
-meth.evaluate("2 + 2") # 4
+# evaluating expression
+meth.evaluate("4 ^ 2") # 16
+meth.evaluate("3(1 + 2)") # 9
 meth.evaluate("sqrt(9)") # 3
 
 # evaluation with variables

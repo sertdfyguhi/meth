@@ -1,4 +1,4 @@
-from .token import TT_ASSIGN
+from .token import TokenType
 
 
 class Node:
@@ -13,7 +13,7 @@ class Node:
 
 class AssignNode(Node):
     def __init__(self, left, right):
-        super().__init__(left, TT_ASSIGN, right)
+        super().__init__(left, TokenType.ASSIGN, right)
 
     def __repr__(self):
         return f"Assign({self.left} = {self.right})"

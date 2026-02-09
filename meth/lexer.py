@@ -1,5 +1,5 @@
+from .token import Token, TokenType
 from .builtin import CONSTANTS
-from .token import *
 from .error import *
 import string
 
@@ -49,14 +49,14 @@ class Lexer:
                 continue
             elif self.curr in "+-/%^()=!,":
                 # token type value is the same as operator character
-                tokens.append(Token(self.curr))
+                tokens.append(Token(TokenType(self.curr)))
             elif self.curr == "*":
                 # allow for ** syntax for power
                 if self._peek() == "*":
                     self._next()
-                    tokens.append(Token(TT_POW))
+                    tokens.append(Token(TokenType.POW))
                 else:
-                    tokens.append(Token(TT_MUL))
+                    tokens.append(Token(TokenType.MUL))
             else:
                 raise MethSyntaxError(f'Unrecognized character "{self.curr}".')
 
@@ -76,7 +76,7 @@ class Lexer:
             number += self.curr
             self._next()
 
-        return Token(TT_NUMBER, float(number) if "." in number else int(number))
+        return Token(TokenType.NUMBER, float(number) if "." in number else int(number))
 
     def _tokenize_identifier(self):
         identifier = ""
@@ -85,4 +85,4 @@ class Lexer:
             identifier += self.curr
             self._next()
 
-        return Token(TT_IDENTIFIER, identifier)
+        return Token(TokenType.IDENTIFIER, identifier)
