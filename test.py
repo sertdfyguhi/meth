@@ -1,6 +1,6 @@
 import meth
 
-tokens = meth.tokenize("3 + 1")
+tokens = meth.tokenize("1/ 0")
 print(tokens)
 
 ast = meth.parse(tokens)

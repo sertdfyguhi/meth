@@ -123,6 +123,9 @@ class Interpreter:
             case TokenType.MUL:
                 return left * right
             case TokenType.DIV:
+                if right == 0:
+                    raise MethZeroDivError("Cannot divide by zero.")
+
                 return left / right
             case TokenType.MOD:
                 return left % right
@@ -159,7 +162,7 @@ class Interpreter:
             # check if all arguments in function is an identifier, eg: f(x, y) and not f(x+2, y)
             # ? maybe allow for binary operations in arguments
             if any(not isinstance(arg, IdentifierNode) for arg in node.left.right):
-                raise MethArgumentError(
+                raise MethValueError(
                     "Expected all arguments in function assignment to be identifiers."
                 )
 

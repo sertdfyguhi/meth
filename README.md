@@ -25,10 +25,10 @@ pip install dist/*.whl
 import meth
 
 # tokenizing expression
-meth.tokenize("5 + 2") # [Token(NUMBER, 5), Token(+), Token(NUMBER, 2)]
+meth.tokenize("5 + 2") # [Token(TokenType.NUMBER, 5), Token(TokenType.ADD), Token(TokenType.NUMBER, 2)]
 
 # parsing expression
-meth.parse("7 * 2") # BinaryOp(Number(7), *, Number(2))
+meth.parse("7 * 2") # BinaryOp(Number(7), TokenType.MUL, Number(2))
 
 # evaluating expression
 meth.evaluate("4 ^ 2") # 16

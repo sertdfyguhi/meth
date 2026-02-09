@@ -1,31 +1,40 @@
 class MethError(Exception):
-    def __init__(self, *args: object) -> None:
-        self.name = type(self).__name__
-        super().__init__(*args)
+    """Base class for all Meth errors."""
 
-    def __str__(self) -> str:
-        return f"{self.name}: {self.args[0]}"
+    pass
 
 
 class MethSyntaxError(MethError):
+    """Invalid syntax in expression."""
+
     pass
 
 
 class MethNotImplError(MethError):
+    """Feature hasn't been implemented."""
+
     pass
 
 
 class MethVarNotDefinedError(MethError):
+    """Variable hasn't been defined."""
+
     pass
 
 
 class MethZeroDivError(MethError):
+    """Divide by zero."""
+
     pass
 
 
 class MethArgumentError(MethError):
+    """Invalid arguments passed to function."""
+
     pass
 
 
 class MethValueError(MethError):
+    """Invalid value."""
+
     pass

@@ -6,7 +6,15 @@ from .functions import stringify
 from .parser import Parser
 from .lexer import Lexer
 from .error import *
-from .node import *
+from .node import (
+    Node,
+    AssignNode,
+    BinaryOpNode,
+    UnaryOpNode,
+    FunctionNode,
+    NumberNode,
+    IdentifierNode,
+)
 
 __version__ = "2.1.0"
 __author__ = "sertdfyguhi"

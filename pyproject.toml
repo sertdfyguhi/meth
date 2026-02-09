@@ -12,13 +12,20 @@ description = "A mathematical expression parser and evaluator."
 readme = "README.md"
 requires-python = ">=3.0"
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15",
+    "Programming Language :: Python :: Implementation :: CPython",
     "Topic :: Scientific/Engineering :: Mathematics",
     "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
     "Operating System :: OS Independent",
+    "Typing :: Typed",
 ]
 keywords = [
     "math",
@@ -32,6 +39,7 @@ keywords = [
 
 [project.urls]
 "Homepage" = "https://github.com/sertdfyguhi/meth"
+"Source" = "https://github.com/sertdfyguhi/meth"
 "Bug Tracker" = "https://github.com/sertdfyguhi/meth/issues"
 
 [tool.hatch.build.targets.wheel]
