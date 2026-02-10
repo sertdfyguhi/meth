@@ -7,6 +7,8 @@ ALLOWED_VARIABLE_CHARS = string.ascii_letters + "".join(CONSTANTS.keys())
 
 
 class Lexer:
+    """A lexer that tokenizes a mathematical expression."""
+
     def __init__(self, expr: str) -> None:
         """
         Initializes the lexer.
@@ -20,11 +22,13 @@ class Lexer:
         self._next()
 
     def _next(self):
+        """Advances to the next character."""
         self.i += 1
         self.curr = self.expr[self.i] if len(self.expr) > self.i else None
         return self.curr
 
     def _peek(self):
+        """Peeks at the next character."""
         return self.expr[self.i + 1] if len(self.expr) > self.i + 1 else None
 
     def tokenize(self) -> list[Token]:
@@ -65,6 +69,7 @@ class Lexer:
         return tokens
 
     def _tokenize_number(self):
+        """Tokenizes a number."""
         number = ""
 
         # check self.curr too to ensure its not None
@@ -79,6 +84,7 @@ class Lexer:
         return Token(TokenType.NUMBER, float(number) if "." in number else int(number))
 
     def _tokenize_identifier(self):
+        """Tokenizes an identifier."""
         identifier = ""
 
         while self.curr and self.curr in ALLOWED_VARIABLE_CHARS:

@@ -9,6 +9,8 @@ import math
 
 
 class MethFunction:
+    """A math function."""
+
     def __init__(self, name, args, ast) -> None:
         """Initializes a meth function."""
         self.name = name
@@ -16,6 +18,7 @@ class MethFunction:
         self.ast = ast
 
     def __call__(self, *args) -> None:
+        """Calls the meth function."""
         if len(args) != len(self.args):
             raise MethArgumentError(
                 f"{self.name}() takes in {len(self.args)} arguments but {len(args)} were given."
@@ -54,6 +57,8 @@ def _find_product_of_identifier(identifier, variables):
 
 
 class Interpreter:
+    """An interpreter that interprets an AST."""
+
     def __init__(self, ast: Node, variables: dict[str, Number | Callable] = {}) -> None:
         """
         Initializes the interpreter.
@@ -76,6 +81,7 @@ class Interpreter:
         return self._visit(self.ast)
 
     def _visit(self, node):
+        """Visits a node."""
         # find visit function for that type of node using its type name
         visit_func = getattr(self, f"_visit_{type(node).__name__}", None)
         if visit_func is None:
@@ -84,9 +90,11 @@ class Interpreter:
         return visit_func(node)
 
     def _visit_NumberNode(self, node):
+        """Visits a NumberNode."""
         return node.value
 
     def _visit_IdentifierNode(self, node):
+        """Visits a IdentifierNode."""
         identifier = node.value
 
         if len(identifier) > 1:
@@ -111,6 +119,7 @@ class Interpreter:
             return _get_variable_or_constant(identifier, self.variables)
 
     def _visit_BinaryOpNode(self, node):
+        """Visits a BinaryOpNode."""
         left = self._visit(node.left)
         right = self._visit(node.right)
 
@@ -135,6 +144,7 @@ class Interpreter:
                 raise MethNotImplError(f'Unknown operator "{node.value}".')
 
     def _visit_UnaryOpNode(self, node):
+        """Visits a UnaryOpNode."""
         right = self._visit(node.right)
 
         match node.value:
@@ -148,6 +158,7 @@ class Interpreter:
                 raise MethNotImplError(f'Unknown unary operator "{node.value}".')
 
     def _visit_AssignNode(self, node):
+        """Visits a AssignNode."""
         if not isinstance(node.left, (IdentifierNode, FunctionNode)):
             raise MethSyntaxError(
                 f"Expected assignment to identifier or function, found {node.left}."
@@ -173,6 +184,7 @@ class Interpreter:
             self.variables[node.left.value] = right
 
     def _visit_FunctionNode(self, node):
+        """Visits a FunctionNode."""
         func = self._visit(node.value)
 
         if callable(func):

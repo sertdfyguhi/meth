@@ -38,8 +38,6 @@ class Evaluator:
                 Name of the variable to set. Has to be a single character.
             value: Number | MethFunction
                 Value to set the variable with.
-
-        Returns: None
         """
         if len(name) > 1:
             raise ValueError("Name can only be of length one.")
@@ -70,8 +68,6 @@ class Evaluator:
         Args:
             name: str
                 Name of the variable to delete.
-
-        Returns: None
         """
         del self.variables[name]
 

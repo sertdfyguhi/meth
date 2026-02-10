@@ -17,6 +17,7 @@ class Parser:
         self._next()
 
     def _next(self):
+        """Advances to the next token."""
         self.i += 1
         self.curr = self.tokens[self.i] if len(self.tokens) > self.i else None
         return self.curr
@@ -30,6 +31,7 @@ class Parser:
         return self._parse_lowest()
 
     def _parse_parentheses(self, parse_args=False):
+        """Parses the inside of parentheses."""
         self._next()
 
         node = self._parse_add_minus()
@@ -47,8 +49,8 @@ class Parser:
 
         return node
 
-    # parse highest priority, terms
     def _parse_highest(self):
+        """Parses highest precedence operators (numbers, identifiers, parentheses, unary)."""
         node = None
 
         if self.curr.token_type in [
@@ -85,19 +87,14 @@ class Parser:
                         node, TokenType.MUL, IdentifierNode(self.curr.value)
                     )
                 else:
-                    if isinstance(node, IdentifierNode) or isinstance(
-                        node.right, IdentifierNode
-                    ):
-                        # if previous token is an identifier and current is parentheses, make a function node
+                    # if previous token is an identifier and current is parentheses
+                    # make a function node instead of binary op
+                    if isinstance(node, IdentifierNode):
                         right = self._parse_parentheses(parse_args=True)
-
-                        if isinstance(node, IdentifierNode):
-                            node = FunctionNode(node, right)
-                        else:
-                            if not isinstance(node.right, IdentifierNode):
-                                raise MethNotImplError("node.right isn't an identifier")
-
-                            node.right = FunctionNode(node.right, right)
+                        node = FunctionNode(node, right)
+                    elif isinstance(node.right, IdentifierNode):
+                        right = self._parse_parentheses(parse_args=True)
+                        node.right = FunctionNode(node.right, right)
                     else:
                         node = BinaryOpNode(
                             node, TokenType.MUL, self._parse_parentheses()
@@ -118,6 +115,7 @@ class Parser:
         return node
 
     def _parse_pow(self):
+        """Parses fourth precedence operators (power)."""
         node = self._parse_highest()
 
         while self.curr and self.curr.token_type == TokenType.POW:
@@ -128,6 +126,7 @@ class Parser:
         return node
 
     def _parse_mul_div_mod(self):
+        """Parses third precedence operators (multiply, divide, modulo)."""
         node = self._parse_pow()
 
         while self.curr and self.curr.token_type in [
@@ -142,6 +141,7 @@ class Parser:
         return node
 
     def _parse_add_minus(self):
+        """Parses second precedence operators (add, minus)."""
         node = self._parse_mul_div_mod()
 
         while self.curr and self.curr.token_type in [TokenType.ADD, TokenType.MINUS]:
@@ -151,8 +151,8 @@ class Parser:
 
         return node
 
-    # for parsing assignments
     def _parse_lowest(self):
+        """Parses lowest precedence operators (assign)."""
         node = self._parse_add_minus()
 
         while self.curr and self.curr.token_type == TokenType.ASSIGN:

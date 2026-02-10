@@ -27,6 +27,8 @@ class TokenType(Enum):
 
 
 class Token:
+    """A class to store a token and its value."""
+
     def __init__(self, token_type: TokenType, value=None):
         """Initializes a token."""
         self.token_type = token_type

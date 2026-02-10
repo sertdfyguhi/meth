@@ -82,6 +82,6 @@ def get_builtin(name: str) -> Callable | None:
         name: str
             Name of builtin.
 
-    Returns: Callable | None if not found
+    Returns: Callable | None
     """
     return BUILTINS.get(name)
