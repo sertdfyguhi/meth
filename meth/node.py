@@ -1,12 +1,13 @@
 from .token import TokenType
 
 from numbers import Number
+from typing import Any
 
 
 class Node:
     """A node in an AST."""
 
-    def __init__(self, left, value, right):
+    def __init__(self, left: Any, value: Any, right: Any):
         """
         Initializes the node.
 

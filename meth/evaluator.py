@@ -3,12 +3,19 @@ from .parser import Parser
 from .lexer import Lexer
 from .node import Node
 
+from typing import Callable
 from numbers import Number
 
 
 class Evaluator:
-    def __init__(self, variables={}) -> None:
-        """Initializes an evaluator with variables."""
+    def __init__(self, variables: dict[str, Number | Callable] = {}) -> None:
+        """
+        Initializes an evaluator with variables.
+
+        Args:
+            variables: dict[str, Number | Callable]
+                Dictionary of variables.
+        """
         self.variables = variables
 
     def evaluate(self, expr: Node | str) -> Number | None:

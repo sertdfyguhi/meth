@@ -66,7 +66,7 @@ class Interpreter:
         Args:
             ast: Node
                 Abstract syntax tree to interpret.
-            vars: dict[str, Number| Callable] = {}
+            variables: dict[str, Number | Callable] = {}
                 Dictionary of variables.
         """
         self.ast = ast
