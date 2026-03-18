@@ -3,7 +3,9 @@ from .builtin import CONSTANTS
 from .error import *
 import string
 
-ALLOWED_VARIABLE_CHARS = string.ascii_letters + "".join(CONSTANTS.keys())
+NUMBER_CHARS = set(string.digits + ".")
+ALLOWED_VARIABLE_CHARS = set(string.ascii_letters + "".join(CONSTANTS.keys()))
+OPERATOR_CHARS = set("+-/%^()=!,")
 
 
 class Lexer:
@@ -45,13 +47,13 @@ class Lexer:
                 self._next()
                 continue
 
-            if self.curr in string.digits + ".":
+            if self.curr in NUMBER_CHARS:
                 tokens.append(self._tokenize_number())
                 continue
             elif self.curr in ALLOWED_VARIABLE_CHARS:
                 tokens.append(self._tokenize_identifier())
                 continue
-            elif self.curr in "+-/%^()=!,":
+            elif self.curr in OPERATOR_CHARS:
                 # token type value is the same as operator character
                 tokens.append(Token(TokenType(self.curr)))
             elif self.curr == "*":
@@ -74,7 +76,7 @@ class Lexer:
         is_float = False
 
         # check self.curr too to ensure its not None
-        while self.curr and self.curr in string.digits + ".":
+        while self.curr and self.curr in NUMBER_CHARS:
             # if there are multiple dots
             if self.curr == ".":
                 if is_float:
@@ -85,6 +87,9 @@ class Lexer:
             self._next()
 
         number = self.expr[number_start : self.i]
+        if number == ".":
+            raise MethSyntaxError('Unexpected ".".')
+
         return Token(TokenType.NUMBER, float(number) if is_float else int(number))
 
     def _tokenize_identifier(self) -> Token:

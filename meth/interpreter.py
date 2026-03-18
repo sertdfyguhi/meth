@@ -5,7 +5,18 @@ from .node import *
 
 
 from numbers import Number
+import operator
 import math
+
+
+OPERATORS = {
+    TokenType.ADD: operator.add,
+    TokenType.MINUS: operator.sub,
+    TokenType.MUL: operator.mul,
+    TokenType.DIV: operator.truediv,
+    TokenType.MOD: operator.mod,
+    TokenType.POW: operator.pow,
+}
 
 
 class MethFunction:
@@ -32,18 +43,20 @@ class MethFunction:
 class Interpreter:
     """An interpreter that interprets an AST."""
 
-    def __init__(self, ast: Node, variables: dict[str, Number | Callable] = {}) -> None:
+    def __init__(
+        self, ast: Node, variables: dict[str, Number | Callable] | None = None
+    ) -> None:
         """
         Initializes the interpreter.
 
         Args:
             ast: Node
                 Abstract syntax tree to interpret.
-            variables: dict[str, Number | Callable] = {}
+            variables: dict[str, Number | Callable] | None = None
                 Dictionary of variables.
         """
         self.ast = ast
-        self.variables = variables
+        self.variables = {} if variables is None else variables
 
     def interpret(self) -> Number | Callable | None:
         """
@@ -80,16 +93,27 @@ class Interpreter:
 
     def _visit(self, node: Node) -> Number | Callable | None:
         """Visits a node."""
-        # find visit function for that type of node using its type name
-        visit_func = getattr(self, f"_visit_{type(node).__name__}", None)
-        if visit_func is None:
-            raise MethNotImplError(f"Unknown node type {type(node).__name__}.")
+        match node:
+            case NumberNode():
+                return node.value
 
-        return visit_func(node)
+            case IdentifierNode():
+                return self._visit_IdentifierNode(node)
 
-    def _visit_NumberNode(self, node: NumberNode) -> Number:
-        """Visits a NumberNode."""
-        return node.value
+            case BinaryOpNode():
+                return self._visit_BinaryOpNode(node)
+
+            case UnaryOpNode():
+                return self._visit_UnaryOpNode(node)
+
+            case AssignNode():
+                return self._visit_AssignNode(node)
+
+            case FunctionNode():
+                return self._visit_FunctionNode(node)
+
+            case _:
+                raise MethNotImplError(f"Unknown node type {type(node).__name__}.")
 
     def _visit_IdentifierNode(self, node: IdentifierNode) -> Number | Callable:
         """Visits a IdentifierNode."""
@@ -119,25 +143,13 @@ class Interpreter:
         left = self._visit(node.left)
         right = self._visit(node.right)
 
-        # cant use token type variables due to being recognized as a pattern
-        match node.value:
-            case TokenType.ADD:
-                return left + right
-            case TokenType.MINUS:
-                return left - right
-            case TokenType.MUL:
-                return left * right
-            case TokenType.DIV:
-                if right == 0:
-                    raise MethZeroDivError("Cannot divide by zero.")
+        if node.value == TokenType.DIV and right == 0:
+            raise MethZeroDivError("Cannot divide by zero.")
 
-                return left / right
-            case TokenType.MOD:
-                return left % right
-            case TokenType.POW:
-                return left**right
-            case _:
-                raise MethNotImplError(f'Unknown operator "{node.value}".')
+        if node.value not in OPERATORS:
+            raise MethNotImplError(f'Unknown operator "{node.value}".')
+
+        return OPERATORS[node.value](left, right)
 
     def _visit_UnaryOpNode(self, node: UnaryOpNode) -> Number:
         """Visits a UnaryOpNode."""

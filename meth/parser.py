@@ -53,11 +53,11 @@ class Parser:
         """Parses highest precedence operators (numbers, identifiers, parentheses, unary)."""
         node = None
 
-        if self.curr.token_type in [
+        if self.curr.token_type in (
             TokenType.NUMBER,
             TokenType.IDENTIFIER,
             TokenType.LPAREN,
-        ]:
+        ):
             if self.curr.token_type == TokenType.NUMBER:
                 node = NumberNode(self.curr.value)
             elif self.curr.token_type == TokenType.IDENTIFIER:
@@ -68,11 +68,11 @@ class Parser:
             self._next()
 
             # also handle terms like: 3x, ax, 3(1 + 2), (1 + 2)(3 + 4)
-            while self.curr and self.curr.token_type in [
+            while self.curr and self.curr.token_type in (
                 TokenType.NUMBER,
                 TokenType.IDENTIFIER,
                 TokenType.LPAREN,
-            ]:
+            ):
                 if self.curr.token_type == TokenType.NUMBER:
                     if isinstance(node, NumberNode):
                         raise MethSyntaxError(
@@ -101,7 +101,7 @@ class Parser:
                         )
 
                 self._next()
-        elif self.curr.token_type in [TokenType.ADD, TokenType.MINUS]:
+        elif self.curr.token_type in (TokenType.ADD, TokenType.MINUS):
             operator = self.curr.token_type
             self._next()
             node = UnaryOpNode(operator, self._parse_highest())
@@ -118,10 +118,10 @@ class Parser:
         """Parses fourth precedence operators (power)."""
         node = self._parse_highest()
 
-        while self.curr and self.curr.token_type == TokenType.POW:
+        if self.curr and self.curr.token_type == TokenType.POW:
             operator = self.curr.token_type
             self._next()
-            node = BinaryOpNode(node, operator, self._parse_highest())
+            node = BinaryOpNode(node, operator, self._parse_pow())
 
         return node
 
@@ -129,11 +129,11 @@ class Parser:
         """Parses third precedence operators (multiply, divide, modulo)."""
         node = self._parse_pow()
 
-        while self.curr and self.curr.token_type in [
+        while self.curr and self.curr.token_type in (
             TokenType.MUL,
             TokenType.DIV,
             TokenType.MOD,
-        ]:
+        ):
             operator = self.curr.token_type
             self._next()
             node = BinaryOpNode(node, operator, self._parse_pow())
@@ -144,7 +144,7 @@ class Parser:
         """Parses second precedence operators (add, minus)."""
         node = self._parse_mul_div_mod()
 
-        while self.curr and self.curr.token_type in [TokenType.ADD, TokenType.MINUS]:
+        while self.curr and self.curr.token_type in (TokenType.ADD, TokenType.MINUS):
             operator = self.curr.token_type
             self._next()
             node = BinaryOpNode(node, operator, self._parse_mul_div_mod())
