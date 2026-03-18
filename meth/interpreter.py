@@ -29,33 +29,6 @@ class MethFunction:
         ).interpret()
 
 
-def _get_variable_or_constant(name, variables):
-    """Get name from variables or constants."""
-    if name in variables:
-        return variables[name]
-    elif name in CONSTANTS:
-        return CONSTANTS[name]
-    else:
-        raise MethVarNotDefinedError(f'Variable "{name}" is not defined.')
-
-
-def _find_product_of_identifier(identifier, variables):
-    """Gets the product of all variables in an identifier."""
-    product = 1
-
-    for char in identifier:
-        value = _get_variable_or_constant(char, variables)
-
-        if type(value) not in [int, float]:
-            raise MethValueError(
-                f'Expected variable "{char}" to be number, found {type(value)}.'
-            )
-
-        product *= value
-
-    return product
-
-
 class Interpreter:
     """An interpreter that interprets an AST."""
 
@@ -79,6 +52,31 @@ class Interpreter:
         Returns: int | float | Callable | None
         """
         return self._visit(self.ast)
+
+    def _get_variable_or_constant(self, name):
+        """Get name from variables or constants."""
+        if name in self.variables:
+            return self.variables[name]
+        elif name in CONSTANTS:
+            return CONSTANTS[name]
+        else:
+            raise MethVarNotDefinedError(f'Variable "{name}" is not defined.')
+
+    def _find_product_of_identifier(self, identifier):
+        """Gets the product of all variables in an identifier."""
+        product = 1
+
+        for char in identifier:
+            value = self._get_variable_or_constant(char)
+
+            if type(value) not in [int, float]:
+                raise MethValueError(
+                    f'Expected variable "{char}" to be number, found {type(value)}.'
+                )
+
+            product *= value
+
+        return product
 
     def _visit(self, node):
         """Visits a node."""
@@ -104,9 +102,7 @@ class Interpreter:
             for name in BUILTINS:
                 if identifier.endswith(name):
                     builtin = get_builtin(name)
-                    product = _find_product_of_identifier(
-                        identifier[: -len(name)], self.variables
-                    )
+                    product = self._find_product_of_identifier(identifier[: -len(name)])
 
                     if callable(builtin):
                         return lambda *args: product * builtin(*args)
@@ -114,9 +110,9 @@ class Interpreter:
                         # if builtin is a number, multiply it with the other variables
                         return product * builtin
 
-            return _find_product_of_identifier(identifier, self.variables)
+            return self._find_product_of_identifier(identifier)
         else:
-            return _get_variable_or_constant(identifier, self.variables)
+            return self._get_variable_or_constant(identifier)
 
     def _visit_BinaryOpNode(self, node):
         """Visits a BinaryOpNode."""

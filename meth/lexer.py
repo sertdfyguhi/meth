@@ -85,7 +85,6 @@ class Lexer:
             self._next()
 
         number = self.expr[number_start : self.i]
-        print(repr(number))
         return Token(TokenType.NUMBER, float(number) if is_float else int(number))
 
     def _tokenize_identifier(self):
@@ -96,5 +95,4 @@ class Lexer:
             self._next()
 
         identifier = self.expr[identifier_start : self.i]
-        print(repr(identifier))
         return Token(TokenType.IDENTIFIER, identifier)
