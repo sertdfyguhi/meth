@@ -1,3 +1,4 @@
+from typing import Any
 from enum import Enum
 
 
@@ -29,7 +30,7 @@ class TokenType(Enum):
 class Token:
     """A class to store a token and its value."""
 
-    def __init__(self, token_type: TokenType, value=None):
+    def __init__(self, token_type: TokenType, value: Any = None):
         """Initializes a token."""
         self.token_type = token_type
         self.value = value

@@ -21,13 +21,13 @@ class Lexer:
         self.i = -1
         self._next()
 
-    def _next(self):
+    def _next(self) -> str | None:
         """Advances to the next character."""
         self.i += 1
         self.curr = self.expr[self.i] if len(self.expr) > self.i else None
         return self.curr
 
-    def _peek(self):
+    def _peek(self) -> str | None:
         """Peeks at the next character."""
         return self.expr[self.i + 1] if len(self.expr) > self.i + 1 else None
 
@@ -68,7 +68,7 @@ class Lexer:
 
         return tokens
 
-    def _tokenize_number(self):
+    def _tokenize_number(self) -> Token:
         """Tokenizes a number."""
         number_start = self.i
         is_float = False
@@ -87,7 +87,7 @@ class Lexer:
         number = self.expr[number_start : self.i]
         return Token(TokenType.NUMBER, float(number) if is_float else int(number))
 
-    def _tokenize_identifier(self):
+    def _tokenize_identifier(self) -> Token:
         """Tokenizes an identifier."""
         identifier_start = self.i
 

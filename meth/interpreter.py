@@ -11,13 +11,13 @@ import math
 class MethFunction:
     """A math function."""
 
-    def __init__(self, name, args, ast) -> None:
+    def __init__(self, name: str, args: list[IdentifierNode], ast: Node) -> None:
         """Initializes a meth function."""
         self.name = name
         self.args = args
         self.ast = ast
 
-    def __call__(self, *args) -> None:
+    def __call__(self, *args: Number) -> Number | Callable | None:
         """Calls the meth function."""
         if len(args) != len(self.args):
             raise MethArgumentError(
@@ -53,7 +53,7 @@ class Interpreter:
         """
         return self._visit(self.ast)
 
-    def _get_variable_or_constant(self, name):
+    def _get_variable_or_constant(self, name: str) -> Number | Callable:
         """Get name from variables or constants."""
         if name in self.variables:
             return self.variables[name]
@@ -62,7 +62,7 @@ class Interpreter:
         else:
             raise MethVarNotDefinedError(f'Variable "{name}" is not defined.')
 
-    def _find_product_of_identifier(self, identifier):
+    def _find_product_of_identifier(self, identifier) -> Number:
         """Gets the product of all variables in an identifier."""
         product = 1
 
@@ -78,7 +78,7 @@ class Interpreter:
 
         return product
 
-    def _visit(self, node):
+    def _visit(self, node: Node) -> Number | Callable | None:
         """Visits a node."""
         # find visit function for that type of node using its type name
         visit_func = getattr(self, f"_visit_{type(node).__name__}", None)
@@ -87,11 +87,11 @@ class Interpreter:
 
         return visit_func(node)
 
-    def _visit_NumberNode(self, node):
+    def _visit_NumberNode(self, node: NumberNode) -> Number:
         """Visits a NumberNode."""
         return node.value
 
-    def _visit_IdentifierNode(self, node):
+    def _visit_IdentifierNode(self, node: IdentifierNode) -> Number | Callable:
         """Visits a IdentifierNode."""
         identifier = node.value
 
@@ -114,7 +114,7 @@ class Interpreter:
         else:
             return self._get_variable_or_constant(identifier)
 
-    def _visit_BinaryOpNode(self, node):
+    def _visit_BinaryOpNode(self, node: BinaryOpNode) -> Number:
         """Visits a BinaryOpNode."""
         left = self._visit(node.left)
         right = self._visit(node.right)
@@ -139,7 +139,7 @@ class Interpreter:
             case _:
                 raise MethNotImplError(f'Unknown operator "{node.value}".')
 
-    def _visit_UnaryOpNode(self, node):
+    def _visit_UnaryOpNode(self, node: UnaryOpNode) -> Number:
         """Visits a UnaryOpNode."""
         right = self._visit(node.right)
 
@@ -153,7 +153,7 @@ class Interpreter:
             case _:
                 raise MethNotImplError(f'Unknown unary operator "{node.value}".')
 
-    def _visit_AssignNode(self, node):
+    def _visit_AssignNode(self, node: AssignNode) -> None:
         """Visits a AssignNode."""
         if not isinstance(node.left, (IdentifierNode, FunctionNode)):
             raise MethSyntaxError(
@@ -161,7 +161,8 @@ class Interpreter:
             )
 
         if isinstance(node.left, FunctionNode):
-            if len(node.left.value.value) > 1:
+            func_name = node.left.value.value
+            if len(func_name) > 1:
                 raise MethSyntaxError(
                     f"Function assignment name cannot be more than one character."
                 )
@@ -173,13 +174,13 @@ class Interpreter:
                     "Expected all arguments in function assignment to be identifiers."
                 )
 
-            func = MethFunction(node.left.value.value, node.left.right, node.right)
-            self.variables[node.left.value.value] = func
+            func = MethFunction(func_name, node.left.right, node.right)
+            self.variables[func_name] = func
         else:
             right = self._visit(node.right)
             self.variables[node.left.value] = right
 
-    def _visit_FunctionNode(self, node):
+    def _visit_FunctionNode(self, node: FunctionNode) -> Number:
         """Visits a FunctionNode."""
         func = self._visit(node.value)
 

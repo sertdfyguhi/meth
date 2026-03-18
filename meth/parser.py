@@ -16,7 +16,7 @@ class Parser:
         self.i = -1
         self._next()
 
-    def _next(self):
+    def _next(self) -> Token | None:
         """Advances to the next token."""
         self.i += 1
         self.curr = self.tokens[self.i] if len(self.tokens) > self.i else None
@@ -30,7 +30,7 @@ class Parser:
         """
         return self._parse_lowest()
 
-    def _parse_parentheses(self, parse_args=False):
+    def _parse_parentheses(self, parse_args: bool = False) -> Node | list[Node]:
         """Parses the inside of parentheses."""
         self._next()
 
@@ -49,7 +49,7 @@ class Parser:
 
         return node
 
-    def _parse_highest(self):
+    def _parse_highest(self) -> Node:
         """Parses highest precedence operators (numbers, identifiers, parentheses, unary)."""
         node = None
 
@@ -114,7 +114,7 @@ class Parser:
 
         return node
 
-    def _parse_pow(self):
+    def _parse_pow(self) -> Node:
         """Parses fourth precedence operators (power)."""
         node = self._parse_highest()
 
@@ -125,7 +125,7 @@ class Parser:
 
         return node
 
-    def _parse_mul_div_mod(self):
+    def _parse_mul_div_mod(self) -> Node:
         """Parses third precedence operators (multiply, divide, modulo)."""
         node = self._parse_pow()
 
@@ -140,7 +140,7 @@ class Parser:
 
         return node
 
-    def _parse_add_minus(self):
+    def _parse_add_minus(self) -> Node:
         """Parses second precedence operators (add, minus)."""
         node = self._parse_mul_div_mod()
 
@@ -151,7 +151,7 @@ class Parser:
 
         return node
 
-    def _parse_lowest(self):
+    def _parse_lowest(self) -> Node:
         """Parses lowest precedence operators (assign)."""
         node = self._parse_add_minus()
 
