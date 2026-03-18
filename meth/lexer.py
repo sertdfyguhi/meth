@@ -70,25 +70,31 @@ class Lexer:
 
     def _tokenize_number(self):
         """Tokenizes a number."""
-        number = ""
+        number_start = self.i
+        is_float = False
 
         # check self.curr too to ensure its not None
         while self.curr and self.curr in string.digits + ".":
             # if there are multiple dots
-            if self.curr == "." and "." in number:
-                raise MethSyntaxError('Unexpected ".".')
+            if self.curr == ".":
+                if is_float:
+                    raise MethSyntaxError('Unexpected ".".')
 
-            number += self.curr
+                is_float = True
+
             self._next()
 
-        return Token(TokenType.NUMBER, float(number) if "." in number else int(number))
+        number = self.expr[number_start : self.i]
+        print(repr(number))
+        return Token(TokenType.NUMBER, float(number) if is_float else int(number))
 
     def _tokenize_identifier(self):
         """Tokenizes an identifier."""
-        identifier = ""
+        identifier_start = self.i
 
         while self.curr and self.curr in ALLOWED_VARIABLE_CHARS:
-            identifier += self.curr
             self._next()
 
+        identifier = self.expr[identifier_start : self.i]
+        print(repr(identifier))
         return Token(TokenType.IDENTIFIER, identifier)

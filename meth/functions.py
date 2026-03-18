@@ -2,7 +2,7 @@ from .token import TokenType
 from .node import *
 
 
-PRECEDNECE = {
+PRECEDENCE = {
     TokenType.ADD: 1,
     TokenType.MINUS: 1,
     TokenType.MUL: 2,
@@ -28,17 +28,17 @@ def stringify(ast: Node) -> str:
     elif isinstance(ast, BinaryOpNode):  # TODO: add implied multiplication?
         left = stringify(ast.left)
         right = stringify(ast.right)
-        op_precedence = PRECEDNECE[ast.value]
+        op_precedence = PRECEDENCE[ast.value]
 
         if (
             isinstance(ast.left, BinaryOpNode)
-            and PRECEDNECE[ast.left.value] < op_precedence
+            and PRECEDENCE[ast.left.value] < op_precedence
         ):
             left = f"({left})"
 
         if (
             isinstance(ast.right, BinaryOpNode)
-            and PRECEDNECE[ast.right.value] < op_precedence
+            and PRECEDENCE[ast.right.value] < op_precedence
         ):
             right = f"({right})"
 
