@@ -8,7 +8,7 @@ from numbers import Number
 
 
 class Evaluator:
-    def __init__(self, variables: dict[str, Number | Callable] = {}) -> None:
+    def __init__(self, variables: dict[str, Number | Callable] | None = None) -> None:
         """
         Initializes an evaluator with variables.
 
@@ -16,7 +16,7 @@ class Evaluator:
             variables: dict[str, Number | Callable]
                 Dictionary of variables.
         """
-        self.variables = variables
+        self.variables = variables if variables is not None else {}
 
     def evaluate(self, expr: Node | str) -> Number | None:
         """
@@ -28,10 +28,10 @@ class Evaluator:
 
         Returns: int | float | None
         """
-        if type(expr) == str:
+        if isinstance(expr, str):
             expr = Lexer(expr).tokenize()
 
-        if type(expr) == list:
+        if isinstance(expr, list):
             expr = Parser(expr).parse()
 
         return Interpreter(expr, self.variables).interpret()
@@ -63,7 +63,7 @@ class Evaluator:
 
         Returns: Number | MethFunction
         """
-        if name not in self.vars:
+        if name not in self.variables:
             raise ValueError(f'"{name}" is not defined.')
 
         return self.variables[name]

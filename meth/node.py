@@ -6,6 +6,7 @@ from typing import Any
 
 class Node:
     """A node in an AST."""
+    __slots__ = ('left', 'value', 'right')
 
     def __init__(self, left: Any, value: Any, right: Any):
         """
@@ -29,6 +30,7 @@ class Node:
 
 class NumberNode(Node):
     """A node for numbers."""
+    __slots__ = ()
 
     def __init__(self, value: Number):
         """
@@ -46,6 +48,7 @@ class NumberNode(Node):
 
 class IdentifierNode(Node):
     """A node for identifiers."""
+    __slots__ = ()
 
     def __init__(self, value: str):
         """
@@ -63,6 +66,7 @@ class IdentifierNode(Node):
 
 class AssignNode(Node):
     """A node for assignment."""
+    __slots__ = ()
 
     def __init__(self, left: Node, right: Node):
         """
@@ -82,6 +86,7 @@ class AssignNode(Node):
 
 class BinaryOpNode(Node):
     """A node for binary operations."""
+    __slots__ = ()
 
     def __repr__(self):
         return f"BinaryOp({self.left}, {self.value}, {self.right})"
@@ -89,6 +94,7 @@ class BinaryOpNode(Node):
 
 class UnaryOpNode(Node):
     """A node for unary operations."""
+    __slots__ = ()
 
     def __init__(self, operator: TokenType, value: Node):
         """
@@ -109,6 +115,7 @@ class UnaryOpNode(Node):
 # can also act as multiplication, eg: x(1 + 2)
 class FunctionNode(Node):
     """A node for function calls and implied multiplication for identifiers."""
+    __slots__ = ()
 
     def __init__(self, name: IdentifierNode, args: list[Node]):
         """

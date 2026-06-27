@@ -31,7 +31,7 @@ def parse(tokens: list[Token] | str) -> Node | None:
 
     Returns: Node | None
     """
-    if type(tokens) == str:
+    if isinstance(tokens, str):
         tokens = Lexer(tokens).tokenize()
 
     return Parser(tokens).parse()
@@ -47,10 +47,10 @@ def evaluate(expr: str | list[Token] | Node) -> Number | Callable | None:
 
     Returns: Number | Callable | None
     """
-    if type(expr) == str:
+    if isinstance(expr, str):
         expr = Lexer(expr).tokenize()
 
-    if type(expr) == list:
+    if isinstance(expr, list):
         expr = Parser(expr).parse()
 
     return Interpreter(expr).interpret()

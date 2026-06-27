@@ -48,12 +48,15 @@ def stringify(ast: Node) -> str:
 
         case UnaryOpNode():
             right = stringify(ast.right)
+
             # factorial is behind the number unlike plus and minus
-            return (
-                f"{right}!"
-                if ast.value == TokenType.FACT
-                else f"{ast.value.value}{right}"
-            )
+            if ast.value == TokenType.FACT:
+                return f"{right}!"
+            elif isinstance(ast.right, BinaryOpNode):
+                return f"{ast.value.value}({right})"
+            else:
+                return f"{ast.value.value}{right}"
+
 
         case FunctionNode():
             args = ", ".join([str(stringify(arg)) for arg in ast.right])

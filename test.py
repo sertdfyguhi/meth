@@ -1,15 +1,15 @@
 import meth
 
-tokens = meth.tokenize("1- 0sin(x)")
+tokens = meth.tokenize("sqrt(2)")
 print(tokens)
 
 ast = meth.parse(tokens)
 print(ast)
 
-# result = meth.evaluate(ast)
-# print(result)
+result = meth.evaluate(ast)
+print(result)
 
-print(meth.stringify(ast))
+# print(meth.stringify(ast))
 
 # evaluator = meth.Evaluator()
 # print(evaluator.evaluate("2 + 3"))

@@ -1,4 +1,4 @@
-from functools import lru_cache
+# from functools import lru_cache
 from typing import Callable
 import math
 
@@ -60,7 +60,7 @@ BUILTINS = {
 
 
 # makes it 0.02s faster
-@lru_cache(maxsize=len(BUILTINS))
+# @lru_cache(maxsize=len(BUILTINS))
 def is_builtin(name: str) -> bool:
     """
     Checks to see if name is a builtin.

@@ -44,7 +44,9 @@ class Parser:
                 self._next()
                 node.append(self._parse_add_minus())
 
-        if self.curr.token_type != TokenType.RPAREN:
+        if self.curr is None:
+            raise MethSyntaxError('Expected ")", found EOF.')
+        elif self.curr.token_type != TokenType.RPAREN:
             raise MethSyntaxError(f'Expected ")", found {self.curr}.')
 
         return node

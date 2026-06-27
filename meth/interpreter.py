@@ -28,16 +28,21 @@ class MethFunction:
         self.args = args
         self.ast = ast
 
-    def __call__(self, *args: Number) -> Number | Callable | None:
+    def __call__(
+        self, variables: dict[str, Number | Callable], args: list[Number]
+    ) -> Number | Callable | None:
         """Calls the meth function."""
         if len(args) != len(self.args):
             raise MethArgumentError(
                 f"{self.name}() takes in {len(self.args)} arguments but {len(args)} were given."
             )
 
-        return Interpreter(
-            self.ast, {self.args[i].value: args[i] for i in range(len(self.args))}
-        ).interpret()
+        variables = variables.copy()
+
+        for i, arg in enumerate(self.args):
+            variables[arg.value] = args[i]
+
+        return Interpreter(self.ast, variables).interpret()
 
 
 class Interpreter:
@@ -82,7 +87,7 @@ class Interpreter:
         for char in identifier:
             value = self._get_variable_or_constant(char)
 
-            if type(value) not in [int, float]:
+            if not isinstance(value, (int, float)):
                 raise MethValueError(
                     f'Expected variable "{char}" to be number, found {type(value)}.'
                 )
@@ -181,12 +186,13 @@ class Interpreter:
 
             # check if all arguments in function is an identifier, eg: f(x, y) and not f(x+2, y)
             # ? maybe allow for binary operations in arguments
-            if any(not isinstance(arg, IdentifierNode) for arg in node.left.right):
+            args = node.left.right
+            if any(not isinstance(arg, IdentifierNode) for arg in args):
                 raise MethValueError(
                     "Expected all arguments in function assignment to be identifiers."
                 )
 
-            func = MethFunction(func_name, node.left.right, node.right)
+            func = MethFunction(func_name, args, node.right)
             self.variables[func_name] = func
         else:
             right = self._visit(node.right)
@@ -198,7 +204,12 @@ class Interpreter:
 
         if callable(func):
             # visit all arguments and pass it to function
-            return func(*[self._visit(arg) for arg in node.right])
+            args = [self._visit(arg) for arg in node.right]
+
+            if isinstance(func, MethFunction):
+                return func(self.variables, args)
+            else:
+                return func(*args)
         else:
             if len(node.right) > 1:
                 raise MethSyntaxError("Unexpected argument in implied multiplication.")

@@ -3,9 +3,9 @@ from .builtin import CONSTANTS
 from .error import *
 import string
 
+OPERATOR_CHARS = set("+-/%^()=!,")
 NUMBER_CHARS = set(string.digits + ".")
 ALLOWED_VARIABLE_CHARS = set(string.ascii_letters + "".join(CONSTANTS.keys()))
-OPERATOR_CHARS = set("+-/%^()=!,")
 
 
 class Lexer:
@@ -43,7 +43,7 @@ class Lexer:
 
         while self.curr:
             # ignore whitespaces
-            if self.curr == " ":
+            if self.curr.isspace():
                 self._next()
                 continue
 
